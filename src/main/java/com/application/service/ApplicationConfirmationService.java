@@ -1,482 +1,3 @@
-//package com.application.service;
-//
-//import java.time.Year;
-//import java.util.Date;
-//import java.util.HashMap;
-//import java.util.List;
-//import java.util.Map;
-//import java.util.Optional;
-//import java.util.stream.Collectors;
-//
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Service;
-//import org.springframework.transaction.annotation.Transactional;
-//
-//import com.application.dto.ApplicationConfirmationDto;
-//import com.application.dto.BatchDatesResponse;
-//import com.application.dto.CampusAndZoneDTO;
-//import com.application.dto.ConcessionDTO;
-//import com.application.dto.EmployeeDetailsDTO;
-//import com.application.dto.LanguageDTO;
-//import com.application.dto.StudentDetailsDTO;
-//import com.application.entity.AcademicYear;
-//import com.application.entity.BloodGroup;
-//import com.application.entity.CmpsCourseTrack;
-//import com.application.entity.ConcessionReason;
-//import com.application.entity.ConcessionType;
-//import com.application.entity.CourseBatch;
-//import com.application.entity.CourseTrack;
-//import com.application.entity.Employee;
-//import com.application.entity.ExamProgram;
-//import com.application.entity.FoodType;
-//import com.application.entity.Gender;
-//import com.application.entity.Language;
-//import com.application.entity.PaymentDetails;
-//import com.application.entity.ProgramName;
-//import com.application.entity.Section;
-//import com.application.entity.Stream;
-//import com.application.entity.StudentAcademicDetails;
-//import com.application.entity.StudentConcessionType;
-//import com.application.entity.StudentCourseDetails;
-//import com.application.entity.StudentPersonalDetails;
-//import com.application.repository.AcademicLanguageRepository;
-//import com.application.repository.AcademicYearRepository;
-//import com.application.repository.BloodGroupRepository;
-//import com.application.repository.CmpsCourseTrackRepository;
-//import com.application.repository.ConcessionReasonRepository;
-//import com.application.repository.ConcessionTypeRepository;
-//import com.application.repository.CourseBatchRepository;
-//import com.application.repository.CourseGroupRepository;
-//import com.application.repository.CourseTrackRepository;
-//import com.application.repository.ExamProgramRepository;
-//import com.application.repository.FoodTypeRepository;
-//import com.application.repository.GenderRepository;
-//import com.application.repository.LanguageRepository;
-//import com.application.repository.ParentDetailsRepository;
-//import com.application.repository.PaymentDetailsRepository;
-//import com.application.repository.ProgramNameRepository;
-//import com.application.repository.SectionRepository;
-//import com.application.repository.StreamRepository;
-//import com.application.repository.StudentAcademicDetailsRepository;
-//import com.application.repository.StudentConcessionTypeRepository;
-//import com.application.repository.StudentCourseDetailsRepository;
-//import com.application.repository.StudentPersonalDetailsRepository;
-//import com.application.repository.StudentRelationRepository;
-//
-//@Service
-//public class ApplicationConfirmationService {
-//
-//    private final CourseGroupRepository courseGroupRepository;
-//
-//    @Autowired
-//    private StudentAcademicDetailsRepository academicRepo;
-//    @Autowired
-//    private StudentPersonalDetailsRepository personalRepo;
-//    @Autowired
-//    private StudentConcessionTypeRepository concessionRepo;
-//    @Autowired
-//    private ConcessionTypeRepository concessionTypeRepo;
-//    @Autowired
-//    private ConcessionReasonRepository concessionReasonRepo;
-//    @Autowired
-//    private PaymentDetailsRepository paymentDetailsRepository;
-//    @Autowired
-//    private StudentCourseDetailsRepository studentCourseDetailsRepository; 
-//    @Autowired
-//    private GenderRepository genderRepository;
-//    @Autowired
-//    private ParentDetailsRepository parentDetailsRepo;
-//    @Autowired
-//    private StudentRelationRepository studentRelationRepo;
-//
-//    // Dropdown repositories
-//    @Autowired
-//    private AcademicYearRepository academicYearRepo;
-//    @Autowired
-//    private StreamRepository streamRepo;
-//    @Autowired
-//    private ProgramNameRepository programRepo;
-//    @Autowired
-//    private ExamProgramRepository examProgramRepo;
-//    @Autowired
-//    private CourseTrackRepository courseTrackRepo;
-//    @Autowired
-//    private CourseBatchRepository courseBatchRepo;
-//    @Autowired
-//    private SectionRepository sectionRepo;
-//    @Autowired
-//    private CmpsCourseTrackRepository cmpsCourseTrackRepo;
-//    @Autowired
-//    private ProgramNameRepository programNameRepository;
-//    @Autowired
-//    private AcademicLanguageRepository academicLanguageRepository;
-//    @Autowired
-//    private FoodTypeRepository foodTypeRepository;
-//    @Autowired
-//    private BloodGroupRepository bloodGroupRepository;
-//    @Autowired
-//    private LanguageRepository languageRepository;
-//
-//    ApplicationConfirmationService(CourseGroupRepository courseGroupRepository) {
-//        this.courseGroupRepository = courseGroupRepository;
-//    }
-//
-//    public List<AcademicYear> getJoinYears() {
-//        return academicYearRepo.findAll();
-//    }
-//
-//    public List<Stream> getStreams() {
-//        return streamRepo.findAll();
-//    }
-//
-//    public List<ProgramName> getPrograms() {
-//        return programRepo.findAll();
-//    }
-//
-//    public List<ExamProgram> getAllExamPrograms() {
-//        return examProgramRepo.findAll();
-//    }
-//
-//    public List<CourseTrack> getCourseTracks() {
-//        return courseTrackRepo.findAll();
-//    }
-//
-//    public List<CourseBatch> getCourseBatches() {
-//        return courseBatchRepo.findAll();
-//    }
-//
-//    public List<Section> getSections() {
-//        return sectionRepo.findAll();
-//    }
-//
-//    public List<ProgramName> getProgramsByStream(int streamId) {
-//        return programNameRepository.findByStreamId(streamId);
-//    }
-//
-//    public List<Stream> getStreamsByCourseTrackId(int courseTrackId) {
-//        return streamRepo.findByCourseTrack_CourseTrackId(courseTrackId);
-//    }
-//
-//    public List<CourseBatch> getCourseBatchesByCourseTrackId(int courseTrackId) {
-//        return cmpsCourseTrackRepo.findCourseBatchesByCourseTrackId(courseTrackId);
-//    }
-//
-//    public List<ConcessionReason> getConcessionReasons() {
-//        return concessionReasonRepo.findAll();
-//    }
-//
-//    public List<ExamProgram> getExamProgramsByProgramId(int programId) {
-//        return examProgramRepo.findByProgramName_programId(programId);
-//    }
-//
-//    public List<Language> getAllLanguages() {
-//        return languageRepository.findAll();
-//    }
-//
-//    public List<FoodType> getAllFoodTypes() {
-//        return foodTypeRepository.findAll();
-//    }
-//
-//    public List<BloodGroup> getAllBloodGroups() {
-//        return bloodGroupRepository.findAll();
-//    }
-//
-//    public Map<String, Object> getDropdownAcademicYears() {
-//        int currentYear = Year.now().getValue();
-//        int nextYear = currentYear + 1;
-//
-//        List<AcademicYear> years = academicYearRepo.findByYearIn(List.of(currentYear, nextYear));
-//
-//        AcademicYear defaultYear = years.stream().filter(y -> y.getYear() == nextYear).findFirst().orElse(null);
-//
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("default", defaultYear);
-//        response.put("options", years);
-//
-//        return response;
-//    }
-//
-//    // ---------------- Auto Populate Methods ---------------- //
-//    public BatchDatesResponse getCourseBatchDetails(Integer batchId) {
-//        CourseBatch batch = courseBatchRepo.findById(batchId)
-//                .orElseThrow(() -> new RuntimeException("Invalid Batch ID: " + batchId));
-//
-//        return new BatchDatesResponse(batch.getStart_date(), batch.getEnd_date());
-//    }
-//
-//    public CampusAndZoneDTO getCampusAndZoneByAdmissionNo(String admissionNo) {
-//        return academicRepo.findByStudAdmsNo(admissionNo).map(studentDetails -> {
-//            if (studentDetails.getCampus() != null && studentDetails.getCampus().getZone() != null) {
-//                CampusAndZoneDTO dto = new CampusAndZoneDTO();
-//                dto.setCampusId(studentDetails.getCampus().getCampusId());
-//                dto.setCampusName(studentDetails.getCampus().getCampusName());
-//                dto.setZoneId(studentDetails.getCampus().getZone().getZoneId());
-//                dto.setZoneName(studentDetails.getCampus().getZone().getZoneName());
-//                return dto;
-//            }
-//            return null;
-//        }).orElse(null);
-//    }
-//
-//    public Optional<Float> getCourseFeeByDetails(int cmpsId, int courseTrackId, int courseBatchId) {
-//        Optional<CmpsCourseTrack> cmpsCourseTrack = cmpsCourseTrackRepo
-//                .findByCmpsIdAndCourseTrack_CourseTrackIdAndCourseBatch_CourseBatchId(cmpsId, courseTrackId,
-//                        courseBatchId);
-//
-//        return cmpsCourseTrack.map(CmpsCourseTrack::getCourse_fee);
-//    }
-//
-//    public Optional<StudentDetailsDTO> getStudentDetailsByAdmissionNo(String admissionNo) {
-//        Optional<StudentAcademicDetails> academicDetailsOptional = academicRepo.findByStudAdmsNo(admissionNo);
-//
-//        if (academicDetailsOptional.isEmpty()) {
-//            return Optional.empty();
-//        }
-//
-//        StudentAcademicDetails academicDetails = academicDetailsOptional.get();
-//        int studAdmsId = academicDetails.getStud_adms_id();
-//
-//        Optional<StudentPersonalDetails> personalDetailsOptional = personalRepo.findByStudentAcademicDetails(academicDetails);
-//        Optional<PaymentDetails> paymentDetailsOptional = paymentDetailsRepository.findByStudentAcademicDetails(academicDetails);
-//        List<StudentConcessionType> concessions = concessionRepo.findByStudAdmsId(studAdmsId);
-//
-//        StudentDetailsDTO dto = new StudentDetailsDTO();
-//
-//        dto.setStudentName(academicDetails.getFirst_name());
-//        dto.setSurname(academicDetails.getLast_name());
-//        dto.setGender(academicDetails.getGender() != null ? academicDetails.getGender().getGenderName() : "N/A");
-//
-//        personalDetailsOptional.ifPresent(personal -> {
-//        	 dto.setFathername(personal.getFather_name());
-//             dto.setMothername(personal.getMother_name());
-//        });
-//
-//        paymentDetailsOptional.ifPresent(payment -> {
-//            dto.setApplicationFee(payment.getApp_fee());
-//            dto.setConfirmationAmount(payment.getPaid_amount());
-//        });
-//
-//        dto.setConcessionAmounts(concessions.stream().map(StudentConcessionType::getConc_amount)
-//                .collect(Collectors.toList()));
-//
-//        return Optional.of(dto);
-//    }
-//
-//    /**
-//     * Save or update admission details along with concessions, personal, and course details.
-//     */
-//    @Transactional
-//    public void saveOrUpdateAdmission(ApplicationConfirmationDto dto) {
-//        StudentAcademicDetails academicDetails = academicRepo.findByStudAdmsNo(dto.getAdmissionNo())
-//                .orElseThrow(() -> new RuntimeException("Invalid Admission No: " + dto.getAdmissionNo()));
-//
-//        // Update personal details first
-//        updatePersonalDetails(dto, academicDetails);
-//
-//        // Update academic details
-//        updateAcademicDetails(dto, academicDetails);
-//
-//        // Save or update concessions
-//        saveOrUpdateConcessions(dto, academicDetails);
-//
-//        // Save or update course details
-//        saveOrUpdateCourseDetails(dto, academicDetails);
-//
-//        academicRepo.save(academicDetails);
-//    }
-//
-//    /**
-//     * Save or update concessions for 1st, 2nd, and 3rd year without deletion
-//     */
-//    private void saveOrUpdateConcessions(ApplicationConfirmationDto dto, StudentAcademicDetails academicDetails) {
-//        if (dto.getConcessions() == null || dto.getConcessions().isEmpty()) {
-//            return;
-//        }
-//
-//        for (ConcessionDTO conc : dto.getConcessions()) {
-//            Optional<StudentConcessionType> existingConcession = findConcessionByStudentAndType(
-//                    academicDetails.getStud_adms_id(), conc.getConcessionTypeId());
-//
-//            StudentConcessionType entity;
-//
-//            if (existingConcession.isPresent()) {
-//                entity = existingConcession.get();
-//                entity.setConc_amount(conc.getConcessionAmount().floatValue());
-//
-//                ConcessionReason currentReason = entity.getConcessionReason();
-//                if (currentReason != null && currentReason.getConc_reason_id() != conc.getReasonId()) {
-//                    ConcessionReason reason = concessionReasonRepo.findById(conc.getReasonId())
-//                            .orElseThrow(() -> new RuntimeException("Invalid Concession Reason ID: " + conc.getReasonId()));
-//                    entity.setConcessionReason(reason);
-//                } else if (currentReason == null) {
-//                    ConcessionReason reason = concessionReasonRepo.findById(conc.getReasonId())
-//                            .orElseThrow(() -> new RuntimeException("Invalid Concession Reason ID: " + conc.getReasonId()));
-//                    entity.setConcessionReason(reason);
-//                }
-//            } else {
-//                entity = new StudentConcessionType();
-//                entity.setStudAdmsId(academicDetails.getStud_adms_id());
-//                AcademicYear year = academicYearRepo.findById(getAcademicYearIdForConcession(conc.getConcessionTypeId()))
-//                        .orElseThrow(() -> new RuntimeException("Invalid Academic Year ID"));
-//                entity.setAcademicYear(year);
-//
-//                entity.setConc_amount(conc.getConcessionAmount().floatValue());
-//
-//                ConcessionType concessionType = concessionTypeRepo.findById(conc.getConcessionTypeId())
-//                        .orElseThrow(() -> new RuntimeException("Concession type not found for ID: " + conc.getConcessionTypeId()));
-//
-//                entity.setConcessionType(concessionType);
-//
-//                ConcessionReason reason = concessionReasonRepo.findById(conc.getReasonId())
-//                        .orElseThrow(() -> new RuntimeException("Invalid Concession Reason ID: " + conc.getReasonId()));
-//                entity.setConcessionReason(reason);
-//            }
-//
-//            concessionRepo.save(entity);
-//        }
-//    }
-//
-//    /**
-//     * Update academic details with form selections
-//     */
-//    private void updateAcademicDetails(ApplicationConfirmationDto dto, StudentAcademicDetails academicDetails) {
-//        // Update personal info in StudentAcademicDetails
-//        academicDetails.setFirst_name(dto.getFirstName());
-//        academicDetails.setLast_name(dto.getLastName());
-//
-//        // Assuming you have a GenderRepository to fetch the Gender entity
-//        if (dto.getGender() != null) {
-//            Gender gender = genderRepository.findById(dto.getGender())
-//                    .orElseThrow(() -> new RuntimeException("Invalid Gender ID: " + dto.getGender()));
-//            academicDetails.setGender(gender);
-//        }
-//
-//        // Update language selections by converting the DTO list to an int array
-//     // Update language selections by converting the DTO list to an int array
-//        if (dto.getLanguages() != null && !dto.getLanguages().isEmpty()) {
-//            int[] languageIds = dto.getLanguages().stream()
-//                    .mapToInt(LanguageDTO::getLangId) // This is where the ID is extracted
-//                    .toArray();
-//            academicDetails.setLang_id(languageIds);
-//        }
-//
-//        if (dto.getApp_conf_date() != null) {
-//            academicDetails.setApp_conf_date(dto.getApp_conf_date());
-//        }
-//    }
-//
-//    /**
-//     * Update student personal details.
-//     */
-//    private void updatePersonalDetails(ApplicationConfirmationDto dto, StudentAcademicDetails academicDetails) {
-//        Optional<StudentPersonalDetails> personalDetailsOptional = personalRepo.findByStudentAcademicDetails(academicDetails);
-//        StudentPersonalDetails personalDetails = personalDetailsOptional.orElseGet(StudentPersonalDetails::new);
-//        personalDetails.setStudentAcademicDetails(academicDetails);
-//
-//        // Assuming parentName in DTO is a single string like "Father Mother"
-//        String parentName = dto.getParentName();
-//        if (parentName != null) {
-//            String[] names = parentName.split(" ", 2); // Split only once
-//            personalDetails.setFather_name(names[0]);
-//            if (names.length > 1) {
-//                personalDetails.setMother_name(names[1]);
-//            }
-//        }
-//
-//        // Update food type
-//        if (dto.getFoodType() != null) {
-//            FoodType foodType = foodTypeRepository.findById(dto.getFoodType())
-//                    .orElseThrow(() -> new RuntimeException("Invalid Food Type ID: " + dto.getFoodType()));
-//            personalDetails.setFoodType(foodType);
-//        }
-//
-//        // Update blood group
-//        if (dto.getBloodGroup() != null) {
-//            BloodGroup bloodGroup = bloodGroupRepository.findById(dto.getBloodGroup())
-//                    .orElseThrow(() -> new RuntimeException("Invalid Blood Group ID: " + dto.getBloodGroup()));
-//            personalDetails.setBloodGroup(bloodGroup);
-//        }
-//
-//        personalRepo.save(personalDetails);
-//    }
-//
-//    /**
-//     * Save or update course details
-//     */
-//    private void saveOrUpdateCourseDetails(ApplicationConfirmationDto dto, StudentAcademicDetails academicDetails) {
-//        Optional<StudentCourseDetails> existingCourseDetails = studentCourseDetailsRepository.findByStudentAcademicDetails(academicDetails);
-//        StudentCourseDetails courseDetails = existingCourseDetails.orElseGet(StudentCourseDetails::new);
-//
-//        courseDetails.setStudentAcademicDetails(academicDetails);
-//        courseDetails.setCourse_date(new Date());
-//
-//        if (dto.getStreamId() != null) {
-//            courseDetails.setStream(streamRepo.findById(dto.getStreamId())
-//                    .orElseThrow(() -> new RuntimeException("Invalid Stream ID: " + dto.getStreamId())));
-//        }
-//        if (dto.getProgramId() != null) {
-//            courseDetails.setProgramName(programRepo.findById(dto.getProgramId())
-//                    .orElseThrow(() -> new RuntimeException("Invalid Program ID: " + dto.getProgramId())));
-//        }
-//        if (dto.getExamProgramId() != null) {
-//            courseDetails.setExamProgram(examProgramRepo.findById(dto.getExamProgramId())
-//                    .orElseThrow(() -> new RuntimeException("Invalid Exam Program ID: " + dto.getExamProgramId())));
-//        }
-//        if (dto.getCourseTrackId() != null) {
-//            courseDetails.setCourseTrack(courseTrackRepo.findById(dto.getCourseTrackId())
-//                    .orElseThrow(() -> new RuntimeException("Invalid Course Track ID: " + dto.getCourseTrackId())));
-//        }
-//        if (dto.getBatchId() != null) {
-//            courseDetails.setCourseBatch(courseBatchRepo.findById(dto.getBatchId())
-//                    .orElseThrow(() -> new RuntimeException("Invalid Batch ID: " + dto.getBatchId())));
-//        }
-//        if (dto.getSectionId() != null) {
-//            courseDetails.setSection(sectionRepo.findById(dto.getSectionId())
-//                    .orElseThrow(() -> new RuntimeException("Invalid Section ID: " + dto.getSectionId())));
-//        }
-//
-//        studentCourseDetailsRepository.save(courseDetails);
-//    }
-//
-//    // Helper method to get academic year ID based on concession type ID
-//    private Integer getAcademicYearIdForConcession(Integer concessionTypeId) {
-//        return concessionTypeId;
-//    }
-//
-//    // Alternative method if the repository query still has issues
-//    private Optional<StudentConcessionType> findConcessionByStudentAndType(Integer studAdmsId, Integer concessionTypeId) {
-//        return concessionRepo.findByStudAdmsId(studAdmsId).stream()
-//                .filter(conc -> conc.getConcessionType() != null && Integer.valueOf(conc.getConcessionType().getConcTypeId()).equals(concessionTypeId))
-//                .findFirst();
-//    }
-//
-//    public Optional<EmployeeDetailsDTO> getEmployeeDetailsByAdmissionNo(String admissionNo) {
-//        Optional<StudentAcademicDetails> academicDetailsOptional = academicRepo.findByStudAdmsNo(admissionNo);
-//
-//        if (academicDetailsOptional.isEmpty()) {
-//            return Optional.empty();
-//        }
-//
-//        StudentAcademicDetails academicDetails = academicDetailsOptional.get();
-//
-//        Employee employee = academicDetails.getEmployee();
-//
-//        if (employee == null) {
-//            return Optional.empty();
-//        }
-//
-//        EmployeeDetailsDTO dto = new EmployeeDetailsDTO();
-//        dto.setEmployeeName(employee.getFirst_name() + " " + employee.getLast_name());
-//        dto.setEmployeeMobileNo(employee.getPrimary_mobile_no());
-//
-//        if (employee.getCampus() != null) {
-//            dto.setCampusName(employee.getCampus().getCampusName());
-//        }
-//
-//        return Optional.of(dto);
-//    }
-//}
-
 package com.application.service;
 
 import java.time.Year;
@@ -492,24 +13,31 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.application.dto.ApplicationConfirmationDto;
-import com.application.dto.BatchDatesResponse;
+import com.application.dto.BatchDTO;
+import com.application.dto.BatchDetailsDTO;
 import com.application.dto.CampusAndZoneDTO;
 import com.application.dto.ConcessionDTO;
 import com.application.dto.EmployeeDetailsDTO;
+import com.application.dto.ExamProgramDTO;
 import com.application.dto.LanguageDTO;
+import com.application.dto.OrientationDTO;
+import com.application.dto.ProgramDTO;
+import com.application.dto.SectionDTO;
+import com.application.dto.StreamDTO;
 import com.application.dto.StudentDetailsDTO;
 import com.application.entity.AcademicYear;
-import com.application.entity.BloodGroup;
-import com.application.entity.CmpsCourseTrack;
+import com.application.entity.CmpsOrientation;
+import com.application.entity.CmpsOrientationProgramView;
+import com.application.entity.CmpsOrientationStreamView;
 import com.application.entity.ConcessionReason;
 import com.application.entity.ConcessionType;
-import com.application.entity.CourseBatch;
-import com.application.entity.CourseTrack;
 import com.application.entity.Employee;
 import com.application.entity.ExamProgram;
 import com.application.entity.FoodType;
 import com.application.entity.Gender;
 import com.application.entity.Language;
+import com.application.entity.Orientation;
+import com.application.entity.OrientationBatch;
 import com.application.entity.ParentDetails;
 import com.application.entity.ProgramName;
 import com.application.entity.Section;
@@ -517,22 +45,24 @@ import com.application.entity.StateApp;
 import com.application.entity.Stream;
 import com.application.entity.StudentAcademicDetails;
 import com.application.entity.StudentConcessionType;
-import com.application.entity.StudentCourseDetails;
+import com.application.entity.StudentOrientationDetails;
 import com.application.entity.StudentPersonalDetails;
 import com.application.entity.StudentRelation;
 import com.application.repository.AcademicLanguageRepository;
 import com.application.repository.AcademicYearRepository;
-import com.application.repository.BloodGroupRepository;
-import com.application.repository.CmpsCourseTrackRepository;
+import com.application.repository.CmpsOrientationBatchFeeViewRepository;
+import com.application.repository.CmpsOrientationProgramViewRepository;
+import com.application.repository.CmpsOrientationRepository;
+import com.application.repository.CmpsOrientationStreamViewRepository;
 import com.application.repository.ConcessionReasonRepository;
 import com.application.repository.ConcessionTypeRepository;
-import com.application.repository.CourseBatchRepository;
-import com.application.repository.CourseGroupRepository;
-import com.application.repository.CourseTrackRepository;
 import com.application.repository.ExamProgramRepository;
 import com.application.repository.FoodTypeRepository;
 import com.application.repository.GenderRepository;
 import com.application.repository.LanguageRepository;
+import com.application.repository.OrientationBatchRepository;
+import com.application.repository.OrientationGroupRepository;
+import com.application.repository.OrientationRepository;
 import com.application.repository.ParentDetailsRepository;
 import com.application.repository.PaymentDetailsRepository;
 import com.application.repository.ProgramNameRepository;
@@ -541,14 +71,14 @@ import com.application.repository.StateAppRepository;
 import com.application.repository.StreamRepository;
 import com.application.repository.StudentAcademicDetailsRepository;
 import com.application.repository.StudentConcessionTypeRepository;
-import com.application.repository.StudentCourseDetailsRepository;
+import com.application.repository.StudentOrientationDetailsRepository;
 import com.application.repository.StudentPersonalDetailsRepository;
 import com.application.repository.StudentRelationRepository;
 
 @Service
 public class ApplicationConfirmationService {
 
-    private final CourseGroupRepository courseGroupRepository;
+    private final OrientationGroupRepository orientationGroupRepository;
 
     @Autowired
     private StudentAcademicDetailsRepository academicRepo;
@@ -563,7 +93,7 @@ public class ApplicationConfirmationService {
     @Autowired
     private PaymentDetailsRepository paymentDetailsRepository;
     @Autowired
-    private StudentCourseDetailsRepository studentCourseDetailsRepository; 
+    private StudentOrientationDetailsRepository studentOrientationDetailsRepository; 
     @Autowired
     private GenderRepository genderRepository;
     @Autowired
@@ -581,13 +111,13 @@ public class ApplicationConfirmationService {
     @Autowired
     private ExamProgramRepository examProgramRepo;
     @Autowired
-    private CourseTrackRepository courseTrackRepo;
+    private OrientationRepository orientationRepository;
     @Autowired
-    private CourseBatchRepository courseBatchRepo;
+    private OrientationBatchRepository orientationBatchRepository;
     @Autowired
     private SectionRepository sectionRepo;
     @Autowired
-    private CmpsCourseTrackRepository cmpsCourseTrackRepo;
+    private CmpsOrientationRepository cmpsOrientationRepository;
     @Autowired
     private ProgramNameRepository programNameRepository;
     @Autowired
@@ -595,14 +125,18 @@ public class ApplicationConfirmationService {
     @Autowired
     private FoodTypeRepository foodTypeRepository;
     @Autowired
-    private BloodGroupRepository bloodGroupRepository;
-    @Autowired
     private LanguageRepository languageRepository;
     @Autowired
     private StateAppRepository stateAppRepository;
+    @Autowired
+    private CmpsOrientationStreamViewRepository cmpsOrientationStreamViewRepository;
+    @Autowired
+    private CmpsOrientationProgramViewRepository cmpsOrientationProgramViewRepository;
+    @Autowired
+    private CmpsOrientationBatchFeeViewRepository cmpsOrientationBatchFeeViewRepository;
 
-    ApplicationConfirmationService(CourseGroupRepository courseGroupRepository) {
-        this.courseGroupRepository = courseGroupRepository;
+    ApplicationConfirmationService(OrientationGroupRepository orientationGroupRepository) {
+        this.orientationGroupRepository = orientationGroupRepository;
     }
 
     public List<AcademicYear> getJoinYears() {
@@ -621,36 +155,20 @@ public class ApplicationConfirmationService {
         return examProgramRepo.findAll();
     }
 
-    public List<CourseTrack> getCourseTracks() {
-        return courseTrackRepo.findAll();
+    public List<Orientation> getCourseTracks() {
+        return orientationRepository.findAll();
     }
 
-    public List<CourseBatch> getCourseBatches() {
-        return courseBatchRepo.findAll();
+    public List<OrientationBatch> getCourseBatches() {
+        return orientationBatchRepository.findAll();
     }
 
     public List<Section> getSections() {
         return sectionRepo.findAll();
     }
 
-    public List<ProgramName> getProgramsByStream(int streamId) {
-        return programNameRepository.findByStreamId(streamId);
-    }
-
-    public List<Stream> getStreamsByCourseTrackId(int courseTrackId) {
-        return streamRepo.findByCourseTrack_CourseTrackId(courseTrackId);
-    }
-
-    public List<CourseBatch> getCourseBatchesByCourseTrackId(int courseTrackId) {
-        return cmpsCourseTrackRepo.findCourseBatchesByCourseTrackId(courseTrackId);
-    }
-
     public List<ConcessionReason> getConcessionReasons() {
         return concessionReasonRepo.findAll();
-    }
-
-    public List<ExamProgram> getExamProgramsByProgramId(int programId) {
-        return examProgramRepo.findByProgramName_programId(programId);
     }
 
     public List<Language> getAllLanguages() {
@@ -659,10 +177,6 @@ public class ApplicationConfirmationService {
 
     public List<FoodType> getAllFoodTypes() {
         return foodTypeRepository.findAll();
-    }
-
-    public List<BloodGroup> getAllBloodGroups() {
-        return bloodGroupRepository.findAll();
     }
 
     public Map<String, Object> getDropdownAcademicYears() {
@@ -679,14 +193,77 @@ public class ApplicationConfirmationService {
 
         return response;
     }
+    
+    public List<OrientationDTO> getOrientationsByCampusId(int campusId) {
+        List<CmpsOrientationStreamView> allData = cmpsOrientationStreamViewRepository.findByCmpsId(campusId);
 
-    // ---------------- Auto Populate Methods ---------------- //
-    public BatchDatesResponse getCourseBatchDetails(Integer batchId) {
-        CourseBatch batch = courseBatchRepo.findById(batchId)
-                .orElseThrow(() -> new RuntimeException("Invalid Batch ID: " + batchId));
-
-        return new BatchDatesResponse(batch.getStart_date(), batch.getEnd_date());
+        return allData.stream()
+                      .map(data -> new OrientationDTO(data.getOrientationId(), data.getOrientationName()))
+                      .distinct()
+                      .collect(Collectors.toList());
     }
+
+
+    public List<StreamDTO> getStreamsByOrientationId(int orientationId) {
+        List<CmpsOrientationStreamView> allData = cmpsOrientationStreamViewRepository.findAll();
+
+        return allData.stream()
+                      .filter(data -> data.getOrientationId() == orientationId) // ✅ fixed
+                      .map(data -> new StreamDTO(data.getStreamId(), data.getStreamName()))
+                      .distinct()
+                      .collect(Collectors.toList());
+    }
+
+    
+    
+    public List<ProgramDTO> getProgramsByOrientationId(int orientationId) {
+        List<CmpsOrientationProgramView> result = cmpsOrientationProgramViewRepository.findByOrientationId(orientationId);
+        
+        return result.stream()
+                     .map(data -> new ProgramDTO(data.getProgramId(), data.getProgramName()))
+                     .distinct()
+                     .collect(Collectors.toList());
+    }
+
+    // Method to get unique exam program IDs and names based on a program ID
+    public List<ExamProgramDTO> getExamProgramsByProgramId(int programId) {
+        List<CmpsOrientationProgramView> result = cmpsOrientationProgramViewRepository.findByProgramId(programId);
+
+        return result.stream()
+                     .map(data -> new ExamProgramDTO(data.getExamProgramId(), data.getExamProgramName()))
+                     .distinct()
+                     .collect(Collectors.toList());
+    }
+
+    
+    public List<BatchDTO> getBatchesByOrientationId(int orientationId) {
+        return cmpsOrientationBatchFeeViewRepository.findByOrientationId(orientationId).stream()
+                         .map(data -> new BatchDTO(data.getOrientationBatchId(), data.getOrientationBatchName()))
+                         .distinct()
+                         .collect(Collectors.toList());
+    }
+
+    // Get batch details (dates, fee) by batch ID
+    public List<BatchDetailsDTO> getBatchDetailsByBatchId(int orientationBatchId) {
+        return cmpsOrientationBatchFeeViewRepository.findByOrientationBatchId(orientationBatchId)
+                .stream()  // convert List<CmpsOrientationBatchFeeView> into Stream
+                .map(data -> new BatchDetailsDTO(
+                        data.getOrientationStartDate(),
+                        data.getOrientationEndDate(),
+                        data.getOrientationFee()
+                ))
+                .collect(Collectors.toList());
+    }
+
+
+    // Get unique section IDs and names by batch name
+    public List<SectionDTO> getSectionsByBatchId(int orientationBatchId) {
+        return cmpsOrientationBatchFeeViewRepository.findByOrientationBatchId(orientationBatchId).stream()
+                .map(data -> new SectionDTO(data.getSectionId(), data.getSectionName()))
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
 
     public CampusAndZoneDTO getCampusAndZoneByAdmissionNo(String admissionNo) {
         return academicRepo.findByStudAdmsNo(admissionNo).map(studentDetails -> {
@@ -701,13 +278,13 @@ public class ApplicationConfirmationService {
             return null;
         }).orElse(null);
     }
+    
+    // NOTE: This method had errors and was corrected to use the correct repository and field names.
+    public Optional<Float> getCourseFeeByDetails(int cmpsId, int orientationId, int orientationBatchId) {
+        Optional<CmpsOrientation> cmpsOrientation = cmpsOrientationRepository
+                .findByCmpsIdAndOrientation_OrientationIdAndOrientationBatch_OrientationBatchId(cmpsId, orientationId, orientationBatchId);
 
-    public Optional<Float> getCourseFeeByDetails(int cmpsId, int courseTrackId, int courseBatchId) {
-        Optional<CmpsCourseTrack> cmpsCourseTrack = cmpsCourseTrackRepo
-                .findByCmpsIdAndCourseTrack_CourseTrackIdAndCourseBatch_CourseBatchId(cmpsId, courseTrackId,
-                        courseBatchId);
-
-        return cmpsCourseTrack.map(CmpsCourseTrack::getCourse_fee);
+        return cmpsOrientation.map(CmpsOrientation::getOrientation_fee);
     }
 
     public Optional<StudentDetailsDTO> getStudentDetailsByAdmissionNo(String admissionNo) {
@@ -718,16 +295,15 @@ public class ApplicationConfirmationService {
         }
 
         StudentAcademicDetails academicDetails = academicDetailsOptional.get();
-
         List<ParentDetails> parentDetailsList = parentDetailsRepo.findByStudentAcademicDetails(academicDetails);
 
-        // Use the new repository method
-        Optional<StateApp> stateAppOptional = Optional.empty();
+        int admissionNumber;
+        List<StateApp> matchingStateApps = List.of();
         try {
-            int admissionNumber = Integer.parseInt(admissionNo);
-            stateAppOptional = stateAppRepository.findByAdmissionNoBetweenRange(admissionNumber);
+            admissionNumber = Integer.parseInt(admissionNo);
+            matchingStateApps = stateAppRepository.findAllByAdmissionNoBetweenRange(admissionNumber);
         } catch (NumberFormatException e) {
-            // Log the error or handle it as appropriate
+            // log error if needed
         }
 
         List<StudentConcessionType> concessions = concessionRepo.findByStudAdmsId(academicDetails.getStud_adms_id());
@@ -748,16 +324,22 @@ public class ApplicationConfirmationService {
             }
         });
 
-        stateAppOptional.ifPresent(stateApp -> {
+        if (!matchingStateApps.isEmpty()) {
+            StateApp stateApp = matchingStateApps.get(0); // pick the first match
             dto.setApplicationFee(Float.parseFloat(stateApp.getApp_fee()));
             dto.setConfirmationAmount(stateApp.getAmount());
-        });
+        } else {
+            dto.setApplicationFee(0);
+            dto.setConfirmationAmount(0);
+        }
 
-        dto.setConcessionAmounts(concessions.stream().map(StudentConcessionType::getConc_amount)
+        dto.setConcessionAmounts(concessions.stream()
+                .map(StudentConcessionType::getConc_amount)
                 .collect(Collectors.toList()));
 
         return Optional.of(dto);
     }
+
 
     /**
      * Save or update admission details along with concessions, personal, and course details.
@@ -878,13 +460,6 @@ public class ApplicationConfirmationService {
                     .orElseThrow(() -> new RuntimeException("Invalid Food Type ID: " + dto.getFoodType()));
             personalDetails.setFoodType(foodType);
         }
-
-        // Update blood group
-        if (dto.getBloodGroup() != null) {
-            BloodGroup bloodGroup = bloodGroupRepository.findById(dto.getBloodGroup())
-                    .orElseThrow(() -> new RuntimeException("Invalid Blood Group ID: " + dto.getBloodGroup()));
-            personalDetails.setBloodGroup(bloodGroup);
-        }
         
         personalRepo.save(personalDetails);
     }
@@ -943,45 +518,66 @@ public class ApplicationConfirmationService {
      * Save or update course details
      */
     private void saveOrUpdateCourseDetails(ApplicationConfirmationDto dto, StudentAcademicDetails academicDetails) {
-        Optional<StudentCourseDetails> existingCourseDetails = studentCourseDetailsRepository.findByStudentAcademicDetails(academicDetails);
-        StudentCourseDetails courseDetails = existingCourseDetails.orElseGet(StudentCourseDetails::new);
+        // Find existing StudentOrientationDetails by the associated StudentAcademicDetails
+        Optional<StudentOrientationDetails> existingDetails = studentOrientationDetailsRepository.findByStudentAcademicDetails(academicDetails);
+        StudentOrientationDetails courseDetails;
 
-        courseDetails.setStudentAcademicDetails(academicDetails);
-        courseDetails.setCourse_date(new Date());
+        if (existingDetails.isPresent()) {
+            // If the record exists, retrieve it for an update
+            courseDetails = existingDetails.get();
+        } else {
+            // If no record exists, create a new one
+            courseDetails = new StudentOrientationDetails();
+            courseDetails.setStudentAcademicDetails(academicDetails);
+        }
 
+        // Set the current date for the course entry
+        courseDetails.setOrientation_date(new Date());
+
+        // Update fields based on DTO values, handling null checks
         if (dto.getStreamId() != null) {
             courseDetails.setStream(streamRepo.findById(dto.getStreamId())
                     .orElseThrow(() -> new RuntimeException("Invalid Stream ID: " + dto.getStreamId())));
         }
+        
         if (dto.getProgramId() != null) {
             courseDetails.setProgramName(programRepo.findById(dto.getProgramId())
                     .orElseThrow(() -> new RuntimeException("Invalid Program ID: " + dto.getProgramId())));
         }
+        
         if (dto.getExamProgramId() != null) {
             courseDetails.setExamProgram(examProgramRepo.findById(dto.getExamProgramId())
                     .orElseThrow(() -> new RuntimeException("Invalid Exam Program ID: " + dto.getExamProgramId())));
         }
-        if (dto.getCourseTrackId() != null) {
-            courseDetails.setCourseTrack(courseTrackRepo.findById(dto.getCourseTrackId())
-                    .orElseThrow(() -> new RuntimeException("Invalid Course Track ID: " + dto.getCourseTrackId())));
+        
+        if (dto.getOrientationId() != null) {
+            courseDetails.setOrientation(orientationRepository.findById(dto.getOrientationId())
+                    .orElseThrow(() -> new RuntimeException("Invalid Orientation ID: " + dto.getOrientationId())));
         }
+        
+        // Corrected code: use dto.getBatchId() and setCourseBatch()
         if (dto.getBatchId() != null) {
-            courseDetails.setCourseBatch(courseBatchRepo.findById(dto.getBatchId())
+            courseDetails.setOrientationBatch(orientationBatchRepository.findById(dto.getBatchId())
                     .orElseThrow(() -> new RuntimeException("Invalid Batch ID: " + dto.getBatchId())));
         }
+        
         if (dto.getSectionId() != null) {
             courseDetails.setSection(sectionRepo.findById(dto.getSectionId())
                     .orElseThrow(() -> new RuntimeException("Invalid Section ID: " + dto.getSectionId())));
         }
         
-        int cmpsId = academicDetails.getCampus().getCampusId();
-        Optional<CmpsCourseTrack> cmpsCourseTrack = cmpsCourseTrackRepo
-                .findByCmpsIdAndCourseTrack_CourseTrackIdAndCourseBatch_CourseBatchId(
-                        cmpsId, dto.getCourseTrackId(), dto.getBatchId());
+        // Find and set the CmpsOrientation entity if all required fields are present
+        if (dto.getOrientationId() != null && dto.getBatchId() != null && academicDetails.getCampus() != null) {
+            int cmpsId = academicDetails.getCampus().getCampusId();
+            Optional<CmpsOrientation> cmpsOrientation = cmpsOrientationRepository
+                    .findByCmpsIdAndOrientation_OrientationIdAndOrientationBatch_OrientationBatchId(
+                            cmpsId, dto.getOrientationId(), dto.getBatchId());
 
-        cmpsCourseTrack.ifPresent(courseDetails::setCmpsCourseTrack);
+            cmpsOrientation.ifPresent(courseDetails::setCmpsOrientation);
+        }
 
-        studentCourseDetailsRepository.save(courseDetails);
+        // Save the entity. This will either insert a new record or update the existing one.
+        studentOrientationDetailsRepository.save(courseDetails);
     }
 
     // Helper method to get academic year ID based on concession type ID

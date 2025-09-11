@@ -73,7 +73,7 @@ public class StudentAcademicDetails {
 
 	@ManyToOne
 	@JoinColumn(name = "study_type_id")
-	private Orientation orientation;
+	private StudyType studyType;
 
 	@ManyToOne
 	@JoinColumn(name = "section_id")

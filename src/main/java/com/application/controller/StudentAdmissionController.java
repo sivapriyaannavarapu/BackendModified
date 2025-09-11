@@ -329,217 +329,217 @@ public class StudentAdmissionController {
         return studentAdmissionService.getAllCampuses();
     }
 
-    @GetMapping("/courses")
-    public List<GenericDropdownDTO> getCourses() {
-        return studentAdmissionService.getAllCourses();
-    }
+//    @GetMapping("/courses")
+//    public List<GenericDropdownDTO> getCourses() {
+//        return studentAdmissionService.getAllCourses();
+//    }
 
-    @GetMapping("/course-batches")
-    public List<GenericDropdownDTO> getCourseBatches() {
-        return studentAdmissionService.getAllCourseBatches();
-    }
-
-    @GetMapping("/states")
-    public List<GenericDropdownDTO> getStates() {
-        return studentAdmissionService.getAllStates();
-    }
-
-    @GetMapping("/districts/{stateId}")
-    public List<GenericDropdownDTO> getDistrictsByState(@PathVariable int stateId) {
-        return studentAdmissionService.getDistrictsByState(stateId);
-    }
-
-    @GetMapping("/school-types")
-    public List<GenericDropdownDTO> getSchoolTypes() {
-        return studentAdmissionService.getAllSchoolTypes();
-    }
-
-    @GetMapping("/quotas")
-    public List<GenericDropdownDTO> getQuotas() {
-        return studentAdmissionService.getAllQuotas();
-    }
-
-    @GetMapping("/relation-types")
-    public List<GenericDropdownDTO> getRelationTypes() {
-        return studentAdmissionService.getAllRelationTypes();
-    }
-
-    @GetMapping("/classes")
-    public List<GenericDropdownDTO> getClasses() {
-        return studentAdmissionService.getAllClasses();
-    }
-
-    // --- NEW DROPDOWN ENDPOINTS ---
-    @GetMapping("/religions")
-    public List<GenericDropdownDTO> getReligions() {
-        return studentAdmissionService.getAllReligions();
-    }
-
-    @GetMapping("/castes")
-    public List<GenericDropdownDTO> getCastes() {
-        return studentAdmissionService.getAllCastes();
-    }
-
-    // --- Endpoints for Get By ID ---
-    @GetMapping("/student-type/{id}")
-    public ResponseEntity<GenericDropdownDTO> getStudentTypeById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getStudentTypeById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/campus/{id}")
-    public ResponseEntity<GenericDropdownDTO> getCampusById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getCampusById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/city/{id}")
-    public ResponseEntity<GenericDropdownDTO> getCityById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getCityById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/orientation/{id}")
-    public ResponseEntity<GenericDropdownDTO> getOrientationById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getOrientationById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/class/{id}")
-    public ResponseEntity<GenericDropdownDTO> getStudentClassById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getStudentClassById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/course/{id}")
-    public ResponseEntity<GenericDropdownDTO> getCourseGroupById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getCourseGroupById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/course-batch/{id}")
-    public ResponseEntity<GenericDropdownDTO> getCourseBatchById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getCourseBatchById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/state/{id}")
-    public ResponseEntity<GenericDropdownDTO> getStateById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getStateById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/district/{id}")
-    public ResponseEntity<GenericDropdownDTO> getDistrictById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getDistrictById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/school-type/{id}")
-    public ResponseEntity<GenericDropdownDTO> getSchoolTypeById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getSchoolTypeById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/school-details/{schoolName}")
-    public ResponseEntity<SchoolDetails> getSchoolDetailsByName(@PathVariable String schoolName) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getSchoolDetailsByName(schoolName));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/quota/{id}")
-    public ResponseEntity<GenericDropdownDTO> getQuotaById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getQuotaById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/relation-type/{id}")
-    public ResponseEntity<GenericDropdownDTO> getRelationTypeById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getRelationTypeById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/gender/{id}")
-    public ResponseEntity<GenericDropdownDTO> getGenderById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getGenderById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/concession-reason/{id}")
-    public ResponseEntity<GenericDropdownDTO> getConcessionReasonById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getConcessionReasonById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/mandal/{id}")
-    public ResponseEntity<GenericDropdownDTO> getMandalById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getMandalById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/organization/{id}")
-    public ResponseEntity<GenericDropdownDTO> getOrganizationById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getOrganizationById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/bank/{id}")
-    public ResponseEntity<GenericDropdownDTO> getOrgBankById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(studentAdmissionService.getOrgBankById(id));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
+//    @GetMapping("/course-batches")
+//    public List<GenericDropdownDTO> getCourseBatches() {
+//        return studentAdmissionService.getAllCourseBatches();
+//    }
+//
+//    @GetMapping("/states")
+//    public List<GenericDropdownDTO> getStates() {
+//        return studentAdmissionService.getAllStates();
+//    }
+//
+//    @GetMapping("/districts/{stateId}")
+//    public List<GenericDropdownDTO> getDistrictsByState(@PathVariable int stateId) {
+//        return studentAdmissionService.getDistrictsByState(stateId);
+//    }
+//
+//    @GetMapping("/school-types")
+//    public List<GenericDropdownDTO> getSchoolTypes() {
+//        return studentAdmissionService.getAllSchoolTypes();
+//    }
+//
+//    @GetMapping("/quotas")
+//    public List<GenericDropdownDTO> getQuotas() {
+//        return studentAdmissionService.getAllQuotas();
+//    }
+//
+//    @GetMapping("/relation-types")
+//    public List<GenericDropdownDTO> getRelationTypes() {
+//        return studentAdmissionService.getAllRelationTypes();
+//    }
+//
+//    @GetMapping("/classes")
+//    public List<GenericDropdownDTO> getClasses() {
+//        return studentAdmissionService.getAllClasses();
+//    }
+//
+//    // --- NEW DROPDOWN ENDPOINTS ---
+//    @GetMapping("/religions")
+//    public List<GenericDropdownDTO> getReligions() {
+//        return studentAdmissionService.getAllReligions();
+//    }
+//
+//    @GetMapping("/castes")
+//    public List<GenericDropdownDTO> getCastes() {
+//        return studentAdmissionService.getAllCastes();
+//    }
+//
+//    // --- Endpoints for Get By ID ---
+//    @GetMapping("/student-type/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getStudentTypeById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getStudentTypeById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/campus/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getCampusById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getCampusById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/city/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getCityById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getCityById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/orientation/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getOrientationById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getOrientationById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/class/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getStudentClassById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getStudentClassById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+////    @GetMapping("/course/{id}")
+////    public ResponseEntity<GenericDropdownDTO> getCourseGroupById(@PathVariable int id) {
+////        try {
+////            return ResponseEntity.ok(studentAdmissionService.getCourseGroupById(id));
+////        } catch (Exception e) {
+////            return ResponseEntity.notFound().build();
+////        }
+////    }
+////
+////    @GetMapping("/course-batch/{id}")
+////    public ResponseEntity<GenericDropdownDTO> getCourseBatchById(@PathVariable int id) {
+////        try {
+////            return ResponseEntity.ok(studentAdmissionService.getCourseBatchById(id));
+////        } catch (Exception e) {
+////            return ResponseEntity.notFound().build();
+////        }
+////    }
+//
+//    @GetMapping("/state/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getStateById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getStateById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/district/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getDistrictById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getDistrictById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/school-type/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getSchoolTypeById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getSchoolTypeById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/school-details/{schoolName}")
+//    public ResponseEntity<SchoolDetails> getSchoolDetailsByName(@PathVariable String schoolName) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getSchoolDetailsByName(schoolName));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/quota/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getQuotaById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getQuotaById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/relation-type/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getRelationTypeById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getRelationTypeById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/gender/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getGenderById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getGenderById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/concession-reason/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getConcessionReasonById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getConcessionReasonById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/mandal/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getMandalById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getMandalById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/organization/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getOrganizationById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getOrganizationById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+//
+//    @GetMapping("/bank/{id}")
+//    public ResponseEntity<GenericDropdownDTO> getOrgBankById(@PathVariable int id) {
+//        try {
+//            return ResponseEntity.ok(studentAdmissionService.getOrgBankById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 }

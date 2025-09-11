@@ -19,7 +19,7 @@ public class CmpsOrientation {
 	
 	
 	@Id
-	private int cmps_orientation_track_id;
+	private int cmps_orientation_id;
 	@Column(name = "cmps_id")
 	private int cmpsId;
 	@Column(name = "acdc_year_id")

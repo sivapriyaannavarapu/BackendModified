@@ -29,7 +29,6 @@ public class StudentConcessionType {
 	private float conc_amount;
 	private int conc_issued_by;
 	private int conc_authorised_by;
-	private int is_active;
 	private LocalDateTime created_Date;
 	private int created_by;
 	private String comments;

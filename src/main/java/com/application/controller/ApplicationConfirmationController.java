@@ -16,19 +16,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.application.dto.ApplicationConfirmationDto;
+import com.application.dto.BatchDTO;
 import com.application.dto.BatchDatesResponse;
+import com.application.dto.BatchDetailsDTO;
 import com.application.dto.CampusAndZoneDTO;
 import com.application.dto.EmployeeDetailsDTO;
+import com.application.dto.ExamProgramDTO;
+import com.application.dto.OrientationDTO;
+import com.application.dto.ProgramDTO;
+import com.application.dto.SectionDTO;
+import com.application.dto.StreamDTO;
 import com.application.dto.StudentDetailsDTO;
-import com.application.entity.AcademicLanguage;
 import com.application.entity.AcademicYear;
 import com.application.entity.BloodGroup;
 import com.application.entity.ConcessionReason;
-import com.application.entity.CourseBatch;
-import com.application.entity.CourseTrack;
 import com.application.entity.ExamProgram;
 import com.application.entity.FoodType;
 import com.application.entity.Language;
+import com.application.entity.Orientation;
+import com.application.entity.OrientationBatch;
 import com.application.entity.ProgramName;
 import com.application.entity.Section;
 import com.application.entity.Stream;
@@ -62,11 +68,11 @@ public class ApplicationConfirmationController {
         }
     }
     
-    @GetMapping("/batch/{batchId}/dates")
-    public ResponseEntity<BatchDatesResponse> getBatchDates(@PathVariable Integer batchId) {
-        BatchDatesResponse response = service.getCourseBatchDetails(batchId);
-        return ResponseEntity.ok(response);
-    }
+//    @GetMapping("/batch/{batchId}/dates")
+//    public ResponseEntity<BatchDatesResponse> getBatchDates(@PathVariable Integer batchId) {
+//        BatchDatesResponse response = service.getCourseBatchDetails(batchId);
+//        return ResponseEntity.ok(response);
+//    }
 
     // 2. Get Course Fee by CourseTrackId
     @GetMapping("/{admissionNo}/campus-zone")
@@ -124,7 +130,7 @@ public class ApplicationConfirmationController {
     }
     
     @GetMapping("/course-tracks")
-    public ResponseEntity<List<CourseTrack>> getCourseTracks() {
+    public ResponseEntity<List<Orientation>> getCourseTracks() {
         try {
             return ResponseEntity.ok(service.getCourseTracks());
         } catch (Exception e) {
@@ -133,7 +139,7 @@ public class ApplicationConfirmationController {
     }
     
     @GetMapping("/course-batches")
-    public ResponseEntity<List<CourseBatch>> getCourseBatches() {
+    public ResponseEntity<List<OrientationBatch>> getCourseBatches() {
         try {
             return ResponseEntity.ok(service.getCourseBatches());
         } catch (Exception e) {
@@ -166,23 +172,23 @@ public class ApplicationConfirmationController {
                               .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
     
-    @GetMapping("/getProgramsByStream")
-    public List<ProgramName> getProgramsByStream(@RequestParam int streamId) {
-        return service.getProgramsByStream(streamId);
-    }
+//    @GetMapping("/getProgramsByStream")
+//    public List<ProgramName> getProgramsByStream(@RequestParam int streamId) {
+//        return service.getProgramsByStream(streamId);
+//    }
     
-    @GetMapping("/by-course-track/id/{courseTrackId}")
-    public List<Stream> getStreamsByCourseTrackId(@PathVariable int courseTrackId) {
-        return service.getStreamsByCourseTrackId(courseTrackId);
-    }
+//    @GetMapping("/by-course-track/id/{courseTrackId}")
+//    public List<Stream> getStreamsByCourseTrackId(@PathVariable int courseTrackId) {
+//        return service.getStreamsByCourseTrackId(courseTrackId);
+//    }
     
-    @GetMapping("/getbatches/{courseTrackId}")
-    public List<CourseBatch> getCourseBatchesByCourseTrackId(@PathVariable int courseTrackId) {
-        return service.getCourseBatchesByCourseTrackId(courseTrackId);
-    }
+//    @GetMapping("/getbatches/{courseTrackId}")
+//    public List<CourseBatch> getCourseBatchesByCourseTrackId(@PathVariable int courseTrackId) {
+//        return service.getCourseBatchesByCourseTrackId(courseTrackId);
+//    }
     
     @GetMapping("/examPrograms/{programId}")
-    public List<ExamProgram> getExamProgramsByProgram(@PathVariable int programId) {
+    public List<ExamProgramDTO> getExamProgramsByProgram(@PathVariable int programId) {
         ProgramName programName = new ProgramName();  
         programName.setProgramId(programId);
         
@@ -206,9 +212,48 @@ public class ApplicationConfirmationController {
     	return service.getAllFoodTypes();
     }
     
-    @GetMapping("/getallbloodgroup")
-    public List<BloodGroup> getAllBloodGroups()
-    {
-    	return service.getAllBloodGroups();
+    @GetMapping("/campus/{campusId}/getorientation")
+    public List<OrientationDTO> getOrientations(@PathVariable int campusId) {
+        return service.getOrientationsByCampusId(campusId);
     }
+
+    @GetMapping("/orientation/{orientationId}/getstreams")
+    public List<StreamDTO> getStreams(@PathVariable int orientationId) {
+        return service.getStreamsByOrientationId(orientationId);
+    }
+    
+    @GetMapping("/orientation/{orientationId}/programs")
+    public List<ProgramDTO> getProgramsByOrientationId(@PathVariable int orientationId) {
+        return service.getProgramsByOrientationId(orientationId);
+    }
+
+    // Endpoint to get exam programs by a specific program ID
+    @GetMapping("/program/{programId}/exam-programs")
+    public List<ExamProgramDTO> getExamProgramsByProgramId(@PathVariable int programId) {
+        return service.getExamProgramsByProgramId(programId);
+    }
+    
+    @GetMapping("/orientation/{orientationId}/batches")
+    public List<BatchDTO> getBatchesByOrientationId(@PathVariable int orientationId) {
+        return service.getBatchesByOrientationId(orientationId);
+    }
+
+    // Endpoint to get detailed information about a single batch by its ID
+    @GetMapping("/{batchId}/details")
+    public ResponseEntity<List<BatchDetailsDTO>> getBatchDetailsByBatchId(@PathVariable int batchId) {
+        List<BatchDetailsDTO> batchDetails = service.getBatchDetailsByBatchId(batchId);
+
+        if (batchDetails.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(batchDetails);
+    }
+
+
+    // Endpoint to get sections associated with a batch name
+    @GetMapping("/by-id/{batchId}/sections")
+    public List<SectionDTO> getSectionsByBatchId(@PathVariable int batchId) {
+        return service.getSectionsByBatchId(batchId);
+    }
+
 }

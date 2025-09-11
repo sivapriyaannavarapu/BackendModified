@@ -12,5 +12,5 @@ import com.application.entity.Stream;
 public interface StreamRepository extends JpaRepository<Stream, Integer>{
 
 	Optional<Stream> findByStreamName(String streamName);
-	 List<Stream> findByCourseTrack_CourseTrackId(int courseTrackId);
+//	 List<Stream> findByCourseTrack_CourseTrackId(int courseTrackId);
 }

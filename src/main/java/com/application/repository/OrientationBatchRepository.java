@@ -10,5 +10,5 @@ import com.application.entity.OrientationBatch;
 @Repository
 public interface OrientationBatchRepository extends JpaRepository<OrientationBatch, Integer>{
 	
-	 Optional<CourseBatch> findByCourseBatchName(String courseBatchName);//orientationbatch table
+	 Optional<OrientationBatch> findByOrientationBatchName(String orientationBatchName);//orientationbatch table
 }

@@ -1,6 +1,7 @@
 package com.application.repository;
  
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,6 +32,9 @@ public interface StateAppRepository extends JpaRepository<StateApp, Integer> {
          @Param("createdBy") int createdBy);
     
     @Query("SELECT s FROM StateApp s WHERE :admissionNo BETWEEN s.app_start_no AND s.app_end_no")
-    Optional<StateApp> findByAdmissionNoBetweenRange(@Param("admissionNo") int admissionNo);
+    List<StateApp> findAllByAdmissionNoBetweenRange(@Param("admissionNo") int admissionNo);
+
+    
+    
 
 }
