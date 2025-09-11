@@ -21,12 +21,12 @@ public class ApplicationConfirmationDto {
     private Integer streamId;
     private Integer programId;
     private Integer examProgramId;
-    private Integer courseTrackId;
+    private Integer orientationId;
     private Integer batchId;
     private Integer sectionId;
     private Date app_conf_date;
     private Integer foodType;
-    private Integer bloodGroup;
+//    private Integer bloodGroup;
     
     private List<LanguageDTO> languages; 
 }

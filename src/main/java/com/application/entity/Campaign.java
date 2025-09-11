@@ -19,11 +19,9 @@ public class Campaign {
     @Column(name = "area_name")
     private String areaName;
     
-    private int cmps_id;
-    
-//    @ManyToOne
-//    @JoinColumn(name = "cmps_id") 
-//    private Campus campus;   
+    @ManyToOne
+    @JoinColumn(name = "cmps_id") 
+    private Campus campus;   
 
     @ManyToOne
     @JoinColumn(name = "district_id") 

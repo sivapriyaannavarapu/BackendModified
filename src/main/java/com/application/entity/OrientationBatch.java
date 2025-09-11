@@ -14,18 +14,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "sce_course_batch", schema = "sce_course")
-public class CourseBatch {
+@Table(name = "sce_orientation_batch", schema = "sce_course")
+public class OrientationBatch {
 
 	@Id
-	@Column(name = "course_batch_id")
-	private int courseBatchId;
-	@Column(name = "course_batch_name")
-	private String courseBatchName;
+	@Column(name = "orientation_batch_id")
+	private int orientationBatchId;
+	@Column(name = "orientation_batch_name")
+	private String orientationBatchName;
 	private LocalDate start_date;
 	private LocalDate end_date;
 	private int acdc_id;
 	private int status;
 	private String display_name;
-	private int course_duration;
+	private int orientation_duration;
 }

@@ -262,16 +262,12 @@ public class CampusService {
             oldDistribution.setZone(selectedCampus.getZone());
         }
        
-//        if (oldDistribution.getDistrict() != null) {
-//            oldDistribution.setState(oldDistribution.getDistrict().getState());
-//        }
+        districtRepository.findById(formDto.getDistrictId())
+          .ifPresent(district -> oldDistribution.setState(district.getState()));
         
-        
- 
         appIssuedTypeRepository.findById(dgmUserTypeId).ifPresent(oldDistribution::setIssuedByType);
         appIssuedTypeRepository.findById(formDto.getIssuedToId()).ifPresent(oldDistribution::setIssuedToType);
  
         distributionRepository.save(oldDistribution);
     }
- 
 }

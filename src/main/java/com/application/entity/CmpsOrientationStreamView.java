@@ -11,10 +11,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="sce_course_group" , schema = "sce_course")
-public class CourseGroup {
+@Table(name = "sce_cmps_orientation_stream" , schema = "sce_course")
+public class CmpsOrientationStreamView {
 	
 	@Id
-	private int group_id;
-	private String group_name;
+	private int cmps_id;
+	private String cmps_name;
+	private int orienatation_id;
+	private String orientation_name;
+	private int stream_id;
+	private String stream_name;
+	
 }

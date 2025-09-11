@@ -267,6 +267,22 @@ public class ApplicationDamagedService {
     public List<Zone> getAllZones() {
         return zoneRepository.findAll();
     }
+    
+    public List<Campus> getCampusesByDgmId(int dgmId) {
+        // Find all Dgm entries for the given DGM ID.
+        // A DGM might be linked to multiple campuses, so find all entries
+        List<Dgm> dgmEntries = dgmRepository.findByDgmId(dgmId);
+
+        if (dgmEntries.isEmpty()) {
+            // Handle case where DGM ID is not found
+            return List.of(); 
+        }
+
+        // Use a Stream to map each Dgm entry to its Campus object
+        return dgmEntries.stream()
+                         .map(Dgm::getCampus)
+                         .collect(Collectors.toList());
+    }
  
     @Transactional
     public AppStatus saveOrUpdateApplicationStatus(ApplicationDamagedDto dto) {

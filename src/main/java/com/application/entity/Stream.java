@@ -26,8 +26,8 @@ public class Stream {
 	private int test_stream;
 	private int onsite_reg;
 	
-	
-	@ManyToOne
-	@JoinColumn(name = "course_track_id")
-	private CourseTrack courseTrack;
+//	
+//	@ManyToOne
+//	@JoinColumn(name = "course_track_id")
+//	private CourseTrack courseTrack;
 }

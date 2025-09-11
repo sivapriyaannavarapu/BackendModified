@@ -1,5 +1,4 @@
 package com.application.entity;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -13,15 +12,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="sce_payment_terms" , schema = "sce_course")
-public class PaymentTerms {
+@Table(name = "sce_sct_orientation" , schema = "sce_course")
+public class SctOrientation {
 	
 	@Id
-	private int payment_term_id;
-	private String payment_term_type;
-	private float amount;
+	private int sct_orientation_id;
+	private int sct_incharge_id;
 	
 	@ManyToOne
-	@JoinColumn(name = "fee_head_detls_id" , referencedColumnName = "fee_head_combination_id")
-	private FeeHeadDetails feeHeadDetails;
+	@JoinColumn(name = "section_id")
+	private Section section;
+	
+	@ManyToOne
+	@JoinColumn(name = "cmps_orientation_id")
+	private CmpsOrientation cmpsOrientation;
 }

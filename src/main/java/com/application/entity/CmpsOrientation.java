@@ -14,27 +14,27 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="sce_cmps_course_track" , schema = "sce_course")
-public class CmpsCourseTrack {
+@Table(name="sce_cmps_orientation" , schema = "sce_course")
+public class CmpsOrientation {
 	
 	
 	@Id
-	private int cmps_course_track_id;
+	private int cmps_orientation_track_id;
 	@Column(name = "cmps_id")
 	private int cmpsId;
 	@Column(name = "acdc_year_id")
 	private Integer acdcYearId;
-	private float course_fee;
+	private float orientation_fee;
 	
 	@ManyToOne
-	@JoinColumn(name = "course_track_id")
-	private CourseTrack courseTrack;
+	@JoinColumn(name = "orientation_id")
+	private Orientation orientation;
 	
 	@ManyToOne
-	@JoinColumn(name = "course_batch_id")
-	private CourseBatch courseBatch;
+	@JoinColumn(name = "orientation_batch_id")
+	private OrientationBatch orientationBatch;
 	
-	@ManyToOne
-	@JoinColumn(name = "fee_set_id")
-	private FeeSets feeSets;
+//	@ManyToOne
+//	@JoinColumn(name = "fee_set_id")
+//	private FeeSets feeSets;
 }

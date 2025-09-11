@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "sce_stud_acdc_detls", schema = "sce_student")
+@Table(name = "sce_stud_acdc_detl", schema = "sce_student")
 public class StudentAcademicDetails {
 
 	@Id
@@ -33,16 +33,16 @@ public class StudentAcademicDetails {
 	private LocalDate adms_date;
 	private int created_by;
 	private LocalDate doj;
-	private int course_track_id;
-	@Column(name = "course_batch_id")
-	private int course_batch_id;
+	private int orientation_id;
+	@Column(name = "orientation_batch_id")
+	private int orientation_batch_id;
 	@Column(name = "pre_school_name")
 	private String pre_school_name;
 	private String admission_referred_by;
 	private String score_app_no;
 	private int score_marks;
-	private Date course_date;
-	private int additional_course_fee;
+	private Date orientation_date;
+	private int additional_orientation_fee;
 	private Date app_sale_date;
 	private Date app_conf_date;
 //	private int is_active;
@@ -72,7 +72,7 @@ public class StudentAcademicDetails {
 	private StudentType studentType;
 
 	@ManyToOne
-	@JoinColumn(name = "orientation_id")
+	@JoinColumn(name = "study_type_id")
 	private Orientation orientation;
 
 	@ManyToOne
@@ -120,7 +120,7 @@ public class StudentAcademicDetails {
 	private ExamProgram examProgram;
 
 	@ManyToOne
-	@JoinColumn(name = "cmps_course_track_id")
-	private CmpsCourseTrack cmpsCourseTrack;
+	@JoinColumn(name = "cmps_orientation_id")
+	private CmpsOrientation cmpsOrientation;
 
 }

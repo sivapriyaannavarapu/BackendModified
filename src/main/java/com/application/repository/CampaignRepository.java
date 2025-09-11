@@ -10,4 +10,6 @@ import com.application.entity.Campaign;
 @Repository
 public interface CampaignRepository  extends JpaRepository<Campaign, Integer>{
 	 List<Campaign> findByCity_CityId(int cityId);
+	 
+	 Campaign findByCampus_CampusId(int campusId);
 }

@@ -18,13 +18,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "sce_stud_course_details" , schema = "sce_student")
-public class StudentCourseDetails {
+@Table(name = "sce_stud_orientation_detl" , schema = "sce_student")
+public class StudentOrientationDetails {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int stud_course_id;
-	private Date course_date;
+	private int stud_orientation_id;
+	private Date orientation_date;
 	
 	@ManyToOne
 	@JoinColumn(name = "stud_adms_id")
@@ -39,12 +39,12 @@ public class StudentCourseDetails {
 	private Section section;
 	
 	@ManyToOne
-	@JoinColumn(name = "course_track_id")
-	private CourseTrack courseTrack;
+	@JoinColumn(name = "orientation_id")
+	private Orientation orientation;
 	
 	@ManyToOne
-	@JoinColumn(name = "course_batch_id")
-	private CourseBatch courseBatch;
+	@JoinColumn(name = "orientation_batch_id")
+	private OrientationBatch orientationBatch;
 	
 	@ManyToOne
 	@JoinColumn(name = "stream_id")
@@ -59,8 +59,8 @@ public class StudentCourseDetails {
 	private ExamProgram examProgram;
 	
 	@ManyToOne
-	@JoinColumn(name = "cmps_course_track_id")
-	private CmpsCourseTrack cmpsCourseTrack;
+	@JoinColumn(name = "cmps_orientation_id")
+	private CmpsOrientation cmpsOrientation;
 	
 	
 }

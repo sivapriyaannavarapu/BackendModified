@@ -31,7 +31,7 @@ public class ProgramName {
 	private Integer no_of_holidays;
 	private Integer status;
 
-	@ManyToOne
-	@JoinColumn(name = "course_track_id")
-	private CourseTrack courseTrack;
+//	@ManyToOne
+//	@JoinColumn(name = "course_track_id")
+//	private CourseTrack courseTrack;
 }

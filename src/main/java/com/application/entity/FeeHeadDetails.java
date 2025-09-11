@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="sce_fee_head_combinations" , schema = "sce_course")
-public class FeeHeadCombinations {
+@Table(name="sce_fee_head_detl" , schema = "sce_course")
+public class FeeHeadDetails {
 	
 	@Id
 	private int fee_head_combination_id;
@@ -28,8 +28,8 @@ public class FeeHeadCombinations {
 	@JoinColumn(name = "fee_head_id")
 	private FeeHead feeHead;
 	
-	@ManyToOne
-	@JoinColumn(name = "fee_set_id")
-	private FeeSets feeSets;
+//	@ManyToOne
+//	@JoinColumn(name = "fee_set_id")
+//	private FeeSets feeSets;
 	
 }

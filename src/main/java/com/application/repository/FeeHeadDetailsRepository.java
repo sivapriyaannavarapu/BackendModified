@@ -3,9 +3,9 @@ package com.application.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.application.entity.FeeHeadCombinations;
+import com.application.entity.FeeHeadDetails;
 
 @Repository
-public interface FeeHeadCombinationsRepository extends JpaRepository<FeeHeadCombinations, Integer>{
+public interface FeeHeadDetailsRepository extends JpaRepository<FeeHeadDetails, Integer>{
 
 }

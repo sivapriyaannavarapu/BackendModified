@@ -97,6 +97,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.application.dto.ApplicationDamagedDto;
@@ -105,7 +106,10 @@ import com.application.entity.AppStatus;
 import com.application.entity.AppStatusTrackView;
 import com.application.entity.ApplicationStatus;
 import com.application.entity.Campus;
+import com.application.entity.Employee;
 import com.application.entity.Zone;
+import com.application.repository.DgmRepository;
+import com.application.repository.EmployeeRepository;
 import com.application.service.ApplicationDamagedService;
  
 @RestController
@@ -114,6 +118,11 @@ public class ApplicationDamagedController {
  
     @Autowired
     private ApplicationDamagedService applicationDamagedService;
+    @Autowired
+    private DgmRepository dgmRepository;
+    
+    @Autowired
+    private EmployeeRepository employeeRepository;
  
     @GetMapping("/pro-employees/{campusId}")
     public ResponseEntity<List<EmployeeDto>> getEmployeeNamesByCampusId(@PathVariable int campusId) {
@@ -122,6 +131,19 @@ public class ApplicationDamagedController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(employees, HttpStatus.OK);
+    }
+    
+    @GetMapping("/campuses-by-dgm-id")
+    public ResponseEntity<List<Campus>> getCampusesByDgmId(@RequestParam int dgmId) {
+        // Call the new service method that finds campuses by DGM ID
+        List<Campus> campuses = applicationDamagedService.getCampusesByDgmId(dgmId);
+
+        // If no campuses are found, you might want to return a 404 response
+        if (campuses.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(campuses);
     }
  
     @GetMapping("/zones")

@@ -479,13 +479,13 @@
 
 package com.application.service;
 
-import java.util.stream.Collectors;
 import java.time.Year;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Date;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -508,17 +508,17 @@ import com.application.entity.CourseTrack;
 import com.application.entity.Employee;
 import com.application.entity.ExamProgram;
 import com.application.entity.FoodType;
+import com.application.entity.Gender;
 import com.application.entity.Language;
 import com.application.entity.ParentDetails;
-import com.application.entity.PaymentDetails;
 import com.application.entity.ProgramName;
 import com.application.entity.Section;
+import com.application.entity.StateApp;
 import com.application.entity.Stream;
 import com.application.entity.StudentAcademicDetails;
 import com.application.entity.StudentConcessionType;
-import com.application.entity.StudentPersonalDetails;
 import com.application.entity.StudentCourseDetails;
-import com.application.entity.Gender;
+import com.application.entity.StudentPersonalDetails;
 import com.application.entity.StudentRelation;
 import com.application.repository.AcademicLanguageRepository;
 import com.application.repository.AcademicYearRepository;
@@ -531,17 +531,18 @@ import com.application.repository.CourseGroupRepository;
 import com.application.repository.CourseTrackRepository;
 import com.application.repository.ExamProgramRepository;
 import com.application.repository.FoodTypeRepository;
+import com.application.repository.GenderRepository;
 import com.application.repository.LanguageRepository;
 import com.application.repository.ParentDetailsRepository;
 import com.application.repository.PaymentDetailsRepository;
 import com.application.repository.ProgramNameRepository;
 import com.application.repository.SectionRepository;
+import com.application.repository.StateAppRepository;
 import com.application.repository.StreamRepository;
 import com.application.repository.StudentAcademicDetailsRepository;
 import com.application.repository.StudentConcessionTypeRepository;
-import com.application.repository.StudentPersonalDetailsRepository;
 import com.application.repository.StudentCourseDetailsRepository;
-import com.application.repository.GenderRepository;
+import com.application.repository.StudentPersonalDetailsRepository;
 import com.application.repository.StudentRelationRepository;
 
 @Service
@@ -597,6 +598,8 @@ public class ApplicationConfirmationService {
     private BloodGroupRepository bloodGroupRepository;
     @Autowired
     private LanguageRepository languageRepository;
+    @Autowired
+    private StateAppRepository stateAppRepository;
 
     ApplicationConfirmationService(CourseGroupRepository courseGroupRepository) {
         this.courseGroupRepository = courseGroupRepository;
@@ -715,10 +718,18 @@ public class ApplicationConfirmationService {
         }
 
         StudentAcademicDetails academicDetails = academicDetailsOptional.get();
-        
+
         List<ParentDetails> parentDetailsList = parentDetailsRepo.findByStudentAcademicDetails(academicDetails);
-        
-        Optional<PaymentDetails> paymentDetailsOptional = paymentDetailsRepository.findByStudentAcademicDetails(academicDetails);
+
+        // Use the new repository method
+        Optional<StateApp> stateAppOptional = Optional.empty();
+        try {
+            int admissionNumber = Integer.parseInt(admissionNo);
+            stateAppOptional = stateAppRepository.findByAdmissionNoBetweenRange(admissionNumber);
+        } catch (NumberFormatException e) {
+            // Log the error or handle it as appropriate
+        }
+
         List<StudentConcessionType> concessions = concessionRepo.findByStudAdmsId(academicDetails.getStud_adms_id());
 
         StudentDetailsDTO dto = new StudentDetailsDTO();
@@ -737,9 +748,9 @@ public class ApplicationConfirmationService {
             }
         });
 
-        paymentDetailsOptional.ifPresent(payment -> {
-            dto.setApplicationFee(payment.getApp_fee());
-            dto.setConfirmationAmount(payment.getPaid_amount());
+        stateAppOptional.ifPresent(stateApp -> {
+            dto.setApplicationFee(Float.parseFloat(stateApp.getApp_fee()));
+            dto.setConfirmationAmount(stateApp.getAmount());
         });
 
         dto.setConcessionAmounts(concessions.stream().map(StudentConcessionType::getConc_amount)

@@ -3,9 +3,9 @@ package com.application.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.application.entity.CourseGroup;
+import com.application.entity.OrientationGroup;
 
 @Repository
-public interface CourseGroupRepository extends JpaRepository<CourseGroup, Integer>{
+public interface OrientationGroupRepository extends JpaRepository<OrientationGroup, Integer>{
 
 }

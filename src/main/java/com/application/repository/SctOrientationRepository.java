@@ -3,9 +3,9 @@ package com.application.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.application.entity.SctCourseTrack;
+import com.application.entity.SctOrientation;
 
 @Repository
-public interface SctCourseTrackRepository extends JpaRepository<SctCourseTrack, Integer>{
+public interface SctOrientationRepository extends JpaRepository<SctOrientation, Integer>{
 
 }
