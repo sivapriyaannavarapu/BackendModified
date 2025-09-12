@@ -237,13 +237,17 @@ public class ApplicationConfirmationController {
     }
 
     // Endpoint to get detailed information about a single batch by its ID
-    @GetMapping("/{batchId}/details")
-    public ResponseEntity<List<BatchDetailsDTO>> getBatchDetailsByBatchId(@PathVariable int batchId) {
-        List<BatchDetailsDTO> batchDetails = service.getBatchDetailsByBatchId(batchId);
+    @GetMapping("/details/by-orientation/{orientationId}/by-batch/{orientationBatchId}")
+    public ResponseEntity<List<BatchDetailsDTO>> getBatchDetails(
+            @PathVariable int orientationId,
+            @PathVariable int orientationBatchId) {
+        
+        List<BatchDetailsDTO> batchDetails = service.getBatchDetails(orientationId, orientationBatchId);
 
         if (batchDetails.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+
         return ResponseEntity.ok(batchDetails);
     }
 

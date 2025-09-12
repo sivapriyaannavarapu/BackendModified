@@ -2,6 +2,7 @@ package com.application.service;
 
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,7 @@ import com.application.dto.StreamDTO;
 import com.application.dto.StudentDetailsDTO;
 import com.application.entity.AcademicYear;
 import com.application.entity.CmpsOrientation;
+import com.application.entity.CmpsOrientationBatchFeeView;
 import com.application.entity.CmpsOrientationProgramView;
 import com.application.entity.CmpsOrientationStreamView;
 import com.application.entity.ConcessionReason;
@@ -273,9 +275,17 @@ public class ApplicationConfirmationService {
     }
 
     // Get batch details (dates, fee) by batch ID
-    public List<BatchDetailsDTO> getBatchDetailsByBatchId(int orientationBatchId) {
-        return cmpsOrientationBatchFeeViewRepository.findByOrientationBatchId(orientationBatchId)
-                .stream()  // convert List<CmpsOrientationBatchFeeView> into Stream
+ public List<BatchDetailsDTO> getBatchDetails(int orientationId, int orientationBatchId) {
+        
+        List<CmpsOrientationBatchFeeView> batchDetailsList = 
+            cmpsOrientationBatchFeeViewRepository.findByOrientationIdAndOrientationBatchId(orientationId, orientationBatchId);
+        
+        if (batchDetailsList.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return batchDetailsList.stream()
+                .filter(Objects::nonNull)
                 .map(data -> new BatchDetailsDTO(
                         data.getOrientationStartDate(),
                         data.getOrientationEndDate(),

@@ -21,4 +21,6 @@ public interface CmpsOrientationBatchFeeViewRepository extends JpaRepository<Cmp
 	    List<CmpsOrientationBatchFeeView> findByOrientationBatchName(String orientationBatchName);
 	    
 	    List<CmpsOrientationBatchFeeView> findByCmpsId(int cmpsId);
+	    
+	    List<CmpsOrientationBatchFeeView> findByOrientationIdAndOrientationBatchId(int orientationId, int orientationBatchId);
 }
