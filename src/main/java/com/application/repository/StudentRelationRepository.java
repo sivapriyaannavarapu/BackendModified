@@ -14,4 +14,5 @@ public interface StudentRelationRepository extends JpaRepository<StudentRelation
 	
 	 @Query("SELECT sr FROM StudentRelation sr WHERE sr.student_relation_type = :type")
 	 Optional<StudentRelation> findByStudentRelationType(@Param("type") String studentRelationType);
+	 
 }

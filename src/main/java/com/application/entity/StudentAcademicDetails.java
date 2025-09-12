@@ -33,7 +33,7 @@ public class StudentAcademicDetails {
 	private LocalDate adms_date;
 	private int created_by;
 	private LocalDate doj;
-	private int orientation_id;
+	private Integer orientation_id;
 	@Column(name = "orientation_batch_id")
 	private int orientation_batch_id;
 	@Column(name = "pre_school_name")

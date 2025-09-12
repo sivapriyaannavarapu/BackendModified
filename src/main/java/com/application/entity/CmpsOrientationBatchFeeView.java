@@ -48,4 +48,10 @@ public class CmpsOrientationBatchFeeView {
 
     @Column(name = "orientation_fee")
     private float orientationFee;
+    
+    @Column(name = "class_id")
+    private int classId;
+    
+    @Column(name = "class_name")
+    private String className;
 }

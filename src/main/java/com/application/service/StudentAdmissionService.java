@@ -3,6 +3,7 @@ package com.application.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -13,9 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.application.dto.AddressDetailsDTO;
 import com.application.dto.BankDetailsDTO;
+import com.application.dto.ClassDTO;
 import com.application.dto.ConcessionEntryDTO;
 import com.application.dto.CourseFeeDTO;
 import com.application.dto.GenericDropdownDTO;
+import com.application.dto.OrientationDTO;
 import com.application.dto.OrientationResponseDTO;
 import com.application.dto.ParentDetailsDTO;
 import com.application.dto.PaymentDetailsDTO;
@@ -41,6 +44,7 @@ import com.application.entity.StudentClass;
 import com.application.entity.StudentConcessionType;
 import com.application.entity.StudentOrientationDetails;
 import com.application.entity.StudentPersonalDetails;
+import com.application.entity.StudyType;
 import com.application.repository.AcademicYearRepository;
 import com.application.repository.AdmissionTypeRepository;
 import com.application.repository.BloodGroupRepository;
@@ -152,6 +156,14 @@ public class StudentAdmissionService {
 
     // region Dropdown and GetById Methods
     
+    public List<OrientationDTO> getOrientationsByClassId(int classId) {
+        return cmpsOrientationBatchFeeViewRepo.findOrientationsByClassId(classId);
+    }
+    
+    public List<ClassDTO> getClassesByCampusId(int campusId) {
+        return cmpsOrientationBatchFeeViewRepo.findClassesByCampusId(campusId);
+    }
+    
     public List<GenericDropdownDTO> getAllReligions() {
         return religionRepo.findAll().stream()
                 .map(r -> new GenericDropdownDTO(r.getReligion_id(), r.getReligion_type()))
@@ -186,9 +198,7 @@ public class StudentAdmissionService {
     }
     
     
-    
-    
-//    public List<GenericDropdownDTO> getOrientationsByCampus(int campusId) {
+//    public List<GenericDropdownDTO> getOrientationsByCampus1(int campusId) {
 //        return cmpsOrientationStreamViewRepo.findByCmpsId(campusId).stream()
 //            .map(view -> new GenericDropdownDTO(view.getOrientationId(), view.getOrientationName()))
 //            .distinct()
@@ -287,6 +297,13 @@ public class StudentAdmissionService {
                 // CORRECTED: Call the camelCase getter methods
                 .map(org -> new GenericDropdownDTO(org.getOrgId(), org.getOrg_name()))
                 .collect(Collectors.toList());
+    }
+    
+    public StudyType getStudyTypeById(int id) {
+        Optional<StudyType> studyTypeOptional = studyTypeRepo.findById(id);
+        
+        // Check if the entity was found before returning
+        return studyTypeOptional.orElse(null);
     }
 
     /**

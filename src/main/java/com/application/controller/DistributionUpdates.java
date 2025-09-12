@@ -19,7 +19,7 @@ import com.application.service.ZoneService;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 @RestController
-@RequestMapping("/distribution/posts")
+@RequestMapping("/distribution/updates")
 @CrossOrigin(origins = "*")
 public class DistributionUpdates {
 	
@@ -42,7 +42,7 @@ public class DistributionUpdates {
          }
      }
   
-     @PutMapping("/update-distribute/{id}")
+     @PutMapping("/update-dgm/{id}")
      public ResponseEntity<String> updateDistribution(@PathVariable Integer id, @RequestBody FormSubmissionDTO formDto) {
          try {
              applicationService.updateForm(id, formDto);

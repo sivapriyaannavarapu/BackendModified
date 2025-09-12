@@ -13,6 +13,7 @@ public class ApplicationConfirmationDto {
     private String lastName;
     private String parentName;//autopopulate
     private Integer gender;
+//    private Integer status;
 //    private Double applicationFee;autopopulate
 
     private List<ConcessionDTO> concessions;

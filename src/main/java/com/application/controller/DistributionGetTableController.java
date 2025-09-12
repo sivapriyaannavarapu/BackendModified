@@ -12,7 +12,7 @@ import com.application.dto.DistributionGetTableDTO;
 import com.application.service.DistributionGetTableService;
 
 @RestController
-@RequestMapping("/api/distributions")
+@RequestMapping("/distribution/table")
 public class DistributionGetTableController {
 	
 	

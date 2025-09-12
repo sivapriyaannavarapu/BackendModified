@@ -293,9 +293,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.application.dto.BankDetailsDTO;
+import com.application.dto.ClassDTO;
 import com.application.dto.GenericDropdownDTO;
+import com.application.dto.OrientationDTO;
 import com.application.dto.OrientationResponseDTO;
 import com.application.dto.StudentAdmissionDTO;
+import com.application.entity.StudyType;
 import com.application.service.StudentAdmissionService;
 
 @RestController
@@ -376,6 +379,28 @@ public class StudentAdmissionController {
     public List<GenericDropdownDTO> getBanksByOrganization(@PathVariable int orgId) {
         return studentAdmissionService.getBanksByOrganization(orgId);
     }
+    
+    @GetMapping("/studtype{id}")
+    public ResponseEntity<StudyType> getStudyTypeById(@PathVariable int id) {
+        StudyType studyType = studentAdmissionService.getStudyTypeById(id);
+ 
+        if (studyType != null) {
+            return ResponseEntity.ok(studyType);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    @GetMapping("/orientations/by-class/{classId}")
+    public List<OrientationDTO> getOrientations(@PathVariable int classId) {
+        return studentAdmissionService.getOrientationsByClassId(classId);
+    }
+    
+    @GetMapping("/classes/by-campus/{campusId}")
+    public List<ClassDTO> getClasses(@PathVariable int campusId) {
+        return studentAdmissionService.getClassesByCampusId(campusId);
+    }
+
    
 
 

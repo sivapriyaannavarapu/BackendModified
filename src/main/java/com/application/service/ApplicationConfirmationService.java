@@ -46,6 +46,7 @@ import com.application.entity.ParentDetails;
 import com.application.entity.ProgramName;
 import com.application.entity.Section;
 import com.application.entity.StateApp;
+import com.application.entity.Status;
 import com.application.entity.Stream;
 import com.application.entity.StudentAcademicDetails;
 import com.application.entity.StudentConcessionType;
@@ -72,6 +73,7 @@ import com.application.repository.PaymentDetailsRepository;
 import com.application.repository.ProgramNameRepository;
 import com.application.repository.SectionRepository;
 import com.application.repository.StateAppRepository;
+import com.application.repository.StatusRepository;
 import com.application.repository.StreamRepository;
 import com.application.repository.StudentAcademicDetailsRepository;
 import com.application.repository.StudentConcessionTypeRepository;
@@ -104,6 +106,8 @@ public class ApplicationConfirmationService {
     private ParentDetailsRepository parentDetailsRepo;
     @Autowired
     private StudentRelationRepository studentRelationRepo;
+    @Autowired
+    private StatusRepository statusRepository;
 
     // Dropdown repositories
     @Autowired
@@ -268,7 +272,7 @@ public class ApplicationConfirmationService {
     
     public List<BatchDTO> getBatchesByOrientationId(int orientationId) {
         return cmpsOrientationBatchFeeViewRepository.findByOrientationId(orientationId).stream()
-                         .filter(Objects::nonNull) // Add this line to filter out null elements
+//                         .filter(Objects::nonNull) 
                          .map(data -> new BatchDTO(data.getOrientationBatchId(), data.getOrientationBatchName()))
                          .distinct()
                          .collect(Collectors.toList());
@@ -296,12 +300,14 @@ public class ApplicationConfirmationService {
 
 
     // Get unique section IDs and names by batch name
-    public List<SectionDTO> getSectionsByBatchId(int orientationBatchId) {
-        return cmpsOrientationBatchFeeViewRepository.findByOrientationBatchId(orientationBatchId).stream()
-                .map(data -> new SectionDTO(data.getSectionId(), data.getSectionName()))
-                .distinct()
-                .collect(Collectors.toList());
-    }
+ public List<SectionDTO> getSectionsByBatchId(int orientationBatchId) {
+	    return cmpsOrientationBatchFeeViewRepository.findByOrientationBatchId(orientationBatchId).stream()
+	            // Add a filter to remove any null objects from the stream
+	            .filter(Objects::nonNull)
+	            .map(data -> new SectionDTO(data.getSectionId(), data.getSectionName()))
+	            .distinct()
+	            .collect(Collectors.toList());
+	}
 
 
     public CampusAndZoneDTO getCampusAndZoneByAdmissionNo(String admissionNo) {
@@ -483,6 +489,10 @@ public class ApplicationConfirmationService {
         if (dto.getApp_conf_date() != null) {
             academicDetails.setApp_conf_date(dto.getApp_conf_date());
         }
+        
+        Status status = statusRepository.findById(1)
+                .orElseThrow(() -> new RuntimeException("Status ID 1 not found"));
+        academicDetails.setStatus(status);
     }
 
     /**
@@ -507,10 +517,10 @@ public class ApplicationConfirmationService {
      * Save or update parent details in the ParentDetails table.
      */
     private void saveOrUpdateParentDetails(ApplicationConfirmationDto dto, StudentAcademicDetails academicDetails) {
-        StudentRelation fatherRelation = studentRelationRepo.findByStudentRelationType("father")
+        StudentRelation fatherRelation = studentRelationRepo.findByStudentRelationType("Father")
                 .orElseThrow(() -> new RuntimeException("Student relation 'Father' not found."));
 
-        StudentRelation motherRelation = studentRelationRepo.findByStudentRelationType("mother")
+        StudentRelation motherRelation = studentRelationRepo.findByStudentRelationType("Mother")
                 .orElseThrow(() -> new RuntimeException("Student relation 'Mother' not found."));
                 
         String parentName = dto.getParentName();
