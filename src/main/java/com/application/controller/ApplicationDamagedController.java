@@ -100,13 +100,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.application.dto.AppStatusDetailsDTO;
 import com.application.dto.ApplicationDamagedDto;
+import com.application.dto.CampusDto;
 import com.application.dto.EmployeeDto;
 import com.application.entity.AppStatus;
 import com.application.entity.AppStatusTrackView;
 import com.application.entity.ApplicationStatus;
 import com.application.entity.Campus;
-import com.application.entity.Employee;
 import com.application.entity.Zone;
 import com.application.repository.DgmRepository;
 import com.application.repository.EmployeeRepository;
@@ -192,4 +193,24 @@ public class ApplicationDamagedController {
             return new ResponseEntity<>("Application not found with number: " + applicationNo, HttpStatus.NOT_FOUND);
         }
     }
+    
+    @GetMapping("/details/{appNo}")
+    public ResponseEntity<AppStatusDetailsDTO> getAppDetails(
+            @PathVariable int appNo) {
+        
+        return applicationDamagedService.getAppStatusDetails(appNo)
+                .map(ResponseEntity::ok)        // If the DTO is present, return 200 OK
+                .orElse(ResponseEntity.notFound().build()); // If not found, return 404 Not Found
+    }
+    
+
+    @GetMapping("/by-zone/{zoneId}")
+    public ResponseEntity<List<CampusDto>> getCampusesByZone(@PathVariable int zoneId) {
+        
+        // Correct method name to match the one in your service class
+        List<CampusDto> campuses = applicationDamagedService.getCampusDtosByZoneId(zoneId);
+
+        return ResponseEntity.ok(campuses);
+    }
+    
 }

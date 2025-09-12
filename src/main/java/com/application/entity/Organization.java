@@ -1,5 +1,6 @@
 package com.application.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -15,7 +16,8 @@ import lombok.NoArgsConstructor;
 public class Organization {
 	
 	@Id
-	private int org_id;
+	@Column(name = "org_id")
+    private int orgId;
 	private String org_name;
 	private String org_type;
 	

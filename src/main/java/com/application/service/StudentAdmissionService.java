@@ -1,18 +1,95 @@
 package com.application.service;
 
-import com.application.dto.*;
-import com.application.entity.*;
-import com.application.repository.*;
-import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.application.dto.AddressDetailsDTO;
+import com.application.dto.BankDetailsDTO;
+import com.application.dto.ConcessionEntryDTO;
+import com.application.dto.CourseFeeDTO;
+import com.application.dto.GenericDropdownDTO;
+import com.application.dto.OrientationResponseDTO;
+import com.application.dto.ParentDetailsDTO;
+import com.application.dto.PaymentDetailsDTO;
+import com.application.dto.ProConcessionDTO;
+import com.application.dto.SiblingDTO;
+import com.application.dto.StudentAdmissionDTO;
+import com.application.dto.StudentConcessionDetailsDTO;
+import com.application.entity.Campus;
+import com.application.entity.CampusSchoolType;
+import com.application.entity.CmpsOrientation;
+import com.application.entity.CmpsOrientationBatchFeeView;
+import com.application.entity.Employee;
+import com.application.entity.OrganizationBankDetails;
+import com.application.entity.ParentDetails;
+import com.application.entity.PaymentDetails;
+import com.application.entity.PaymentMode;
+import com.application.entity.ProConcession;
+import com.application.entity.Sibling;
+import com.application.entity.StudentAcademicDetails;
+import com.application.entity.StudentAddress;
+import com.application.entity.StudentApplicationTransaction;
+import com.application.entity.StudentClass;
+import com.application.entity.StudentConcessionType;
+import com.application.entity.StudentOrientationDetails;
+import com.application.entity.StudentPersonalDetails;
+import com.application.repository.AcademicYearRepository;
+import com.application.repository.AdmissionTypeRepository;
+import com.application.repository.BloodGroupRepository;
+import com.application.repository.CampusRepository;
+import com.application.repository.CampusSchoolTypeRepository;
+import com.application.repository.CasteRepository;
+import com.application.repository.CityRepository;
+import com.application.repository.CmpsOrientationBatchFeeViewRepository;
+import com.application.repository.CmpsOrientationProgramViewRepository;
+import com.application.repository.CmpsOrientationRepository;
+import com.application.repository.CmpsOrientationStreamViewRepository;
+import com.application.repository.ConcessionReasonRepository;
+import com.application.repository.ConcessionTypeRepository;
+import com.application.repository.DistrictRepository;
+import com.application.repository.EmployeeRepository;
+import com.application.repository.ExamProgramRepository;
+import com.application.repository.GenderRepository;
+import com.application.repository.MandalRepository;
+import com.application.repository.OrgBankBranchRepository;
+import com.application.repository.OrgBankRepository;
+import com.application.repository.OrganizationBankDetailsRepository;
+import com.application.repository.OrganizationRepository;
+import com.application.repository.OrientationBatchRepository;
+import com.application.repository.OrientationRepository;
+import com.application.repository.ParentDetailsRepository;
+import com.application.repository.PaymentDetailsRepository;
+import com.application.repository.PaymentModeRepository;
+import com.application.repository.ProConcessionRepository;
+import com.application.repository.ProgramNameRepository;
+import com.application.repository.QuotaRepository;
+import com.application.repository.ReligionRepository;
+import com.application.repository.SchoolDetailsRepository;
+import com.application.repository.SectionRepository;
+import com.application.repository.SiblingRepository;
+import com.application.repository.StateRepository;
+import com.application.repository.StatusRepository;
+import com.application.repository.StreamRepository;
+import com.application.repository.StudentAcademicDetailsRepository;
+import com.application.repository.StudentAddressRepository;
+import com.application.repository.StudentApplicationTransactionRepository;
+import com.application.repository.StudentClassRepository;
+import com.application.repository.StudentConcessionTypeRepository;
+import com.application.repository.StudentOrientationDetailsRepository;
+import com.application.repository.StudentPersonalDetailsRepository;
+import com.application.repository.StudentRelationRepository;
+import com.application.repository.StudentTypeRepository;
+import com.application.repository.StudyTypeRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class StudentAdmissionService {
@@ -66,6 +143,11 @@ public class StudentAdmissionService {
     @Autowired private StreamRepository streamRepo;
     @Autowired private ProgramNameRepository programNameRepo;
     @Autowired private ExamProgramRepository examProgramRepo;
+    @Autowired  private CmpsOrientationBatchFeeViewRepository repository;
+    
+    @Autowired private OrganizationRepository organizationRepo;
+    @Autowired private OrganizationBankDetailsRepository orgBankDetailsRepo;
+    
     // endregion
 
     // region Dropdown and GetById Methods
@@ -103,6 +185,9 @@ public class StudentAdmissionService {
                 .collect(Collectors.toList());
     }
     
+    
+    
+    
 //    public List<GenericDropdownDTO> getOrientationsByCampus(int campusId) {
 //        return cmpsOrientationStreamViewRepo.findByCmpsId(campusId).stream()
 //            .map(view -> new GenericDropdownDTO(view.getOrientationId(), view.getOrientationName()))
@@ -130,6 +215,59 @@ public class StudentAdmissionService {
 //            .distinct()
 //            .collect(Collectors.toList());
 //    }
+    
+
+    public List<OrientationResponseDTO> getOrientationsByCampus(int campusId) {
+        List<CmpsOrientationBatchFeeView> orientations = cmpsOrientationBatchFeeViewRepo.findByCmpsId(campusId);
+        
+        return orientations.stream()
+                .map(this::convertToOrientationResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Helper method to convert the view entity to a response DTO.
+     */
+    private OrientationResponseDTO convertToOrientationResponseDto(CmpsOrientationBatchFeeView entity) {
+        return new OrientationResponseDTO(
+            entity.getCmpsId(),
+            entity.getCmpsName(),
+            entity.getOrientationId(),
+            entity.getOrientationName(),
+            entity.getOrientationBatchId(),
+            entity.getOrientationBatchName(),
+            entity.getOrientationStartDate(),
+            entity.getOrientationEndDate(),
+            entity.getOrientationFee(),
+            entity.getSectionName(),
+            entity.getSectionId()
+        );
+    }
+    
+ // ... inside the service class
+
+    public List<GenericDropdownDTO> getDistrictsByState(int stateId) {
+        return districtRepo.findByStateStateId(stateId).stream()
+                .map(d -> new GenericDropdownDTO(d.getDistrictId(), d.getDistrictName()))
+                .collect(Collectors.toList());
+    }
+
+    public List<GenericDropdownDTO> getMandalsByDistrict(int districtId) {
+        return mandalRepo.findByDistrictDistrictId(districtId).stream()
+                .map(m -> new GenericDropdownDTO(m.getMandal_id(), m.getMandal_name()))
+                .collect(Collectors.toList());
+    }
+
+    public List<GenericDropdownDTO> getCitiesByDistrict(int districtId) {
+        return cityRepo.findByDistrictDistrictId(districtId).stream()
+                .map(c -> new GenericDropdownDTO(c.getCityId(), c.getCityName()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Helper method to convert an entity to a DTO.
+     */
+
 
     public CourseFeeDTO getOrientationFee(int campusId, int orientationId) {
         List<CmpsOrientation> orientations = cmpsOrientationRepo
@@ -143,6 +281,61 @@ public class StudentAdmissionService {
         float fee = orientations.get(0).getOrientation_fee();
         return new CourseFeeDTO(fee);
     }
+    
+    public List<GenericDropdownDTO> getAllOrganizations() {
+        return organizationRepo.findAll().stream()
+                // CORRECTED: Call the camelCase getter methods
+                .map(org -> new GenericDropdownDTO(org.getOrgId(), org.getOrg_name()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * UPDATED LOGIC: Gets all details, extracts the unique banks, then maps to DTO.
+     */
+    public List<GenericDropdownDTO> getBanksByOrganization(int orgId) {
+        // Use the custom query method 'findDistinctBanksByOrganizationId'
+        return orgBankDetailsRepo.findDistinctBanksByOrganizationId(orgId).stream()
+                .map(bank -> new GenericDropdownDTO(bank.getOrg_bank_id(), bank.getBank_name()))
+                .collect(Collectors.toList());
+    }
+    
+    public BankDetailsDTO getBankDetails(int orgId, int bankId, int branchId) {
+        List<OrganizationBankDetails> detailsList = orgBankDetailsRepo.findDetailsByAllIds(orgId, bankId, branchId);
+
+        if (detailsList.isEmpty()) {
+            throw new EntityNotFoundException("Details not found for the given combination");
+        }
+        
+        // Get the first record from the list.
+        OrganizationBankDetails details = detailsList.get(0);
+        
+        return new BankDetailsDTO(details.getIfsc_code());
+    }
+
+    /**
+     * UPDATED LOGIC: Gets all details for the combo, extracts unique branches, maps to DTO.
+     */
+    public List<GenericDropdownDTO> getBranchesByOrganizationAndBank(int orgId, int bankId) {
+        // Use the custom query method 'findDistinctBranchesByOrganizationAndBankId'
+        return orgBankDetailsRepo.findDistinctBranchesByOrganizationAndBankId(orgId, bankId).stream()
+                .map(branch -> new GenericDropdownDTO(branch.getOrg_bank_branch_id(), branch.getBranch_name()))
+                .collect(Collectors.toList());
+    }
+    
+//    public String getIfscCode(int orgId, int bankId, int branchId) {
+//        OrganizationBankDetails details = orgBankDetailsRepo
+//                .findDetailsByAllIds(orgId, bankId, branchId)
+//                .orElseThrow(() -> new EntityNotFoundException("IFSC code not found for the given combination"));
+//                
+//        return details.getIfsc_code();
+//    }
+//    public List<GenericDropdownDTO> getBranchesByOrganizationAndBank(int org_id, int org_bank_id) {
+//        return orgBankDetailsRepo.findByOrganization_Org_id(org_id, org_bank_id).stream()
+//                .map(details -> details.getOrgBankBranch()) // Get the OrgBankBranch object
+//                .distinct()
+//                .map(branch -> new GenericDropdownDTO(branch.getOrg_bank_branch_id(), branch.getBranch_name()))
+//                .collect(Collectors.toList());
+//    }
     
     // ... other standard dropdown and getById methods
     
@@ -166,7 +359,9 @@ public class StudentAdmissionService {
         if (formData.getPreSchoolStateId() != null) stateRepo.findById(formData.getPreSchoolStateId()).ifPresent(academicDetails::setState);
         if (formData.getPreSchoolDistrictId() != null) districtRepo.findById(formData.getPreSchoolDistrictId()).ifPresent(academicDetails::setDistrict);
         if (formData.getPreschoolTypeId() != null) {
-             schoolTypeRepo.findById(formData.getPreschoolTypeId()).ifPresent(academicDetails::setCampusSchoolType);
+            CampusSchoolType campusSchoolType = schoolTypeRepo.findById(formData.getPreschoolTypeId())
+                    .orElseThrow(() -> new EntityNotFoundException("Invalid Preschool Type ID provided: " + formData.getPreschoolTypeId()));
+            academicDetails.setCampusSchoolType(campusSchoolType);
         }
         academicDetails.setAdmission_referred_by(formData.getAdmissionReferredBy());
         academicDetails.setScore_app_no(formData.getScoreAppNo());

@@ -278,14 +278,25 @@
 
 package com.application.controller;
 
-import com.application.dto.GenericDropdownDTO;
-import com.application.dto.StudentAdmissionDTO;
-import com.application.entity.SchoolDetails;
-import com.application.service.StudentAdmissionService;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.application.dto.BankDetailsDTO;
+import com.application.dto.GenericDropdownDTO;
+import com.application.dto.OrientationResponseDTO;
+import com.application.dto.StudentAdmissionDTO;
+import com.application.service.StudentAdmissionService;
 
 @RestController
 @RequestMapping("/api/student-admissions-sale")
@@ -328,6 +339,75 @@ public class StudentAdmissionController {
     public List<GenericDropdownDTO> getCampuses() {
         return studentAdmissionService.getAllCampuses();
     }
+   
+    @GetMapping("/orientations/{campusId}")
+    public List<OrientationResponseDTO> getOrientationsByCampus(@PathVariable int campusId) {
+        return studentAdmissionService.getOrientationsByCampus(campusId);
+    }
+    
+ // ... inside the controller class
+
+    @GetMapping("/districts/{stateId}")
+    public List<GenericDropdownDTO> getDistrictsByState(@PathVariable int stateId) {
+        return studentAdmissionService.getDistrictsByState(stateId);
+    }
+
+    @GetMapping("/mandals/{districtId}")
+    public List<GenericDropdownDTO> getMandalsByDistrict(@PathVariable int districtId) {
+        return studentAdmissionService.getMandalsByDistrict(districtId);
+    }
+
+    @GetMapping("/cities/{districtId}")
+    public List<GenericDropdownDTO> getCitiesByDistrict(@PathVariable int districtId) {
+        return studentAdmissionService.getCitiesByDistrict(districtId);
+    }
+    
+ // ... inside the controller class
+    @GetMapping("/organizations")
+    public List<GenericDropdownDTO> getAllOrganizations() {
+        return studentAdmissionService.getAllOrganizations();
+    }
+
+    /**
+     * Endpoint to get banks for a selected organization.
+     * Example URL: GET http://localhost:8080/api/student-admissions/banks/1
+     */
+    @GetMapping("/banks/{orgId}")
+    public List<GenericDropdownDTO> getBanksByOrganization(@PathVariable int orgId) {
+        return studentAdmissionService.getBanksByOrganization(orgId);
+    }
+   
+
+
+    /**
+     * Endpoint to get branches for a selected organization and bank.
+     * Example URL: GET http://localhost:8080/api/student-admissions/branches/1/101
+     */
+    @GetMapping("/branches/{orgId}/{bankId}")
+    public List<GenericDropdownDTO> getBranchesByOrganizationAndBank(
+            @PathVariable int orgId,
+            @PathVariable int bankId) {
+        return studentAdmissionService.getBranchesByOrganizationAndBank(orgId, bankId);
+    }
+    
+    @GetMapping("/bank-details")
+    public ResponseEntity<BankDetailsDTO> getBankDetails(
+            @RequestParam int orgId,
+            @RequestParam int bankId,
+            @RequestParam int branchId) {
+        try {
+            BankDetailsDTO bankDetails = studentAdmissionService.getBankDetails(orgId, bankId, branchId);
+            return ResponseEntity.ok(bankDetails);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    //    @GetMapping("/branches/{orgId}/{orgBankId}")
+//    public List<GenericDropdownDTO> getBranchesByOrganizationAndBank(
+//            @PathVariable int org_id, 
+//            @PathVariable int org_bank_id) {
+//        return studentAdmissionService.getBranchesByOrganizationAndBank(org_id, org_bank_id);
+//    }
 
 //    @GetMapping("/courses")
 //    public List<GenericDropdownDTO> getCourses() {

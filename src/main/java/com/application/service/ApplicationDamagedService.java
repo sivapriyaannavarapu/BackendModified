@@ -181,15 +181,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
- 
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
- 
+
+import com.application.dto.AppStatusDetailsDTO;
 import com.application.dto.ApplicationDamagedDto;
+import com.application.dto.CampusDto;
 import com.application.dto.EmployeeDto;
 import com.application.entity.AppStatus;
 import com.application.entity.AppStatusTrackView;
@@ -209,7 +209,7 @@ import com.application.repository.DgmRepository;
 import com.application.repository.EmployeeRepository;
 import com.application.repository.StatusRepository;
 import com.application.repository.ZoneRepository;
- 
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
@@ -283,7 +283,65 @@ public class ApplicationDamagedService {
                          .map(Dgm::getCampus)
                          .collect(Collectors.toList());
     }
+    
+    public Optional<AppStatusDetailsDTO> getAppStatusDetails(int appNo) {
+        // Fetch the AppStatus entity by the application number
+        Optional<AppStatus> appStatusOptional = appStatusRepository.findByApplicationNumber(appNo);
+
+        // If no AppStatus is found, return an empty Optional
+        if (appStatusOptional.isEmpty()) {
+            return Optional.empty();
+        }
+
+        AppStatus appStatus = appStatusOptional.get();
+
+        // Create a new DTO and populate it with details from related entities
+        AppStatusDetailsDTO dto = new AppStatusDetailsDTO();
+
+        // Populate PRO details
+        if (appStatus.getEmployee() != null) {
+            dto.setProId(appStatus.getEmployee().getEmp_id());
+            dto.setProName(appStatus.getEmployee().getFirst_name() + " " + appStatus.getEmployee().getLast_name());
+        }
+
+        // Populate Zone details
+        if (appStatus.getZone() != null) {
+            dto.setZoneId(appStatus.getZone().getZoneId());
+            dto.setZoneName(appStatus.getZone().getZoneName());
+        }
+
+        // Populate DGM details
+        if (appStatus.getEmployee2() != null) {
+            dto.setDgmEmpId(appStatus.getEmployee2().getEmp_id());
+            dto.setDgmEmpName(appStatus.getEmployee2().getFirst_name() + " " + appStatus.getEmployee2().getLast_name());
+        }
+
+        // Populate Campus details
+        if (appStatus.getCampus() != null) {
+            dto.setCampusId(appStatus.getCampus().getCampusId());
+            dto.setCampusName(appStatus.getCampus().getCampusName());
+        }
+
+        // Populate Status details
+        if (appStatus.getStatus() != null) {
+            dto.setStatus(appStatus.getStatus().getStatus_type());
+        }
+        
+        dto.setReason(appStatus.getReason());
+
+        return Optional.of(dto);
+    }
  
+    public List<CampusDto> getCampusDtosByZoneId(int zoneId) {
+        // Find the Zone entity by its ID
+        Optional<Zone> zoneOptional = zoneRepository.findById(zoneId);
+
+        // If the Zone is found, get the Campuses as DTOs associated with it.
+        // If not, return an empty list.
+        return zoneOptional.map(zone -> campusRepository.findByZoneAsDto(zone))
+                           .orElse(List.of());
+    }
+    
     @Transactional
     public AppStatus saveOrUpdateApplicationStatus(ApplicationDamagedDto dto) {
         if (dto == null) {
@@ -318,9 +376,7 @@ public class ApplicationDamagedService {
         appStatus.setZone(zone);
         appStatus.setEmployee2(dgmEmployee);
  
-        if (!existingAppStatusOpt.isPresent()) {
-            appStatus.setIs_active(1);
-        }
+        
  
         return appStatusRepository.save(appStatus);
     }

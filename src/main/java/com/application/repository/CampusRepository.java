@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.application.dto.CampusDto;
 import com.application.entity.Campus;
+import com.application.entity.Zone;
 
 @Repository
 public interface CampusRepository extends JpaRepository<Campus, Integer>{
@@ -26,4 +28,7 @@ public interface CampusRepository extends JpaRepository<Campus, Integer>{
 	
 	 @Query("SELECT c.state.stateId FROM Campus c WHERE c.campusId = :campusId")
 	    Integer findStateIdByCampusId(@Param("campusId") int campusId);
+	 
+	 @Query("SELECT new com.application.dto.CampusDto(c.campusId, c.campusName) FROM Campus c WHERE c.zone = :zone")
+	    List<CampusDto> findByZoneAsDto(@Param("zone") Zone zone);
 }

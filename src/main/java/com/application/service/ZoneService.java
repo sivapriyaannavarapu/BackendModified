@@ -1,16 +1,14 @@
 package com.application.service;
  
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
- 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.application.dto.AppNumberRangeDTO;
 import com.application.dto.ApplicationStartEndDto;
 import com.application.dto.DistributionRequestDTO;
 import com.application.entity.AcademicYear;
@@ -20,8 +18,8 @@ import com.application.entity.Distribution;
 import com.application.entity.Employee;
 import com.application.entity.State;
 import com.application.entity.StateApp;
-import com.application.entity.Zone;
 import com.application.entity.ZonalAccountant;
+import com.application.entity.Zone;
 import com.application.repository.AcademicYearRepository;
 import com.application.repository.AppIssuedTypeRepository;
 import com.application.repository.BalanceTrackRepository;
@@ -32,6 +30,8 @@ import com.application.repository.StateAppRepository;
 import com.application.repository.StateRepository;
 import com.application.repository.ZonalAccountantRepository;
 import com.application.repository.ZoneRepository;
+
+import lombok.NonNull;
  
 @Service
 public class ZoneService {
@@ -112,7 +112,7 @@ public class ZoneService {
     }
    
     @Transactional
-    public void saveDistribution(DistributionRequestDTO request) {
+    public void saveDistribution(@NonNull DistributionRequestDTO request) {
         // Log the request for debugging
         System.out.println("--- RECEIVED DATA IN SERVICE ---");
         System.out.println("Request: " + request.toString());
@@ -218,95 +218,32 @@ public class ZoneService {
         balanceTrackRepository.save(receiverBalance);
     }
     
-    //update
     @Transactional
-    public void updateDistribution(int distributionId, DistributionRequestDTO request) {
+    public void updateDistribution(int distributionId, @NonNull DistributionRequestDTO request) {
         // Step 1: Find the existing distribution record to be updated.
         Distribution existingDistribution = distributionRepository.findById(distributionId)
                 .orElseThrow(() -> new RuntimeException("Distribution record not found for ID: " + distributionId));
  
-        // Get old values to calculate the change in applications distributed.
+        // Get old values before updating
         int oldRange = existingDistribution.getTotalAppCount();
-        int oldIssuerId = existingDistribution.getCreated_by();
-        int oldReceiverId = existingDistribution.getIssued_to_emp_id();
-        int oldAcademicYearId = existingDistribution.getAcademicYear().getAcdcYearId();
- 
-        // Step 2: Revert the old balances. This is crucial for a correct update.
-        // Revert the old issuer's balance
-        BalanceTrack oldIssuerBalance = balanceTrackRepository.findBalanceTrack(oldAcademicYearId, oldIssuerId)
-                .orElseThrow(() -> new RuntimeException("Old issuer's balance track not found."));
-        oldIssuerBalance.setAppAvblCnt(oldIssuerBalance.getAppAvblCnt() + oldRange);
-        // The old 'appFrom' needs to be recalculated based on the new total count if applicable.
-        // For simplicity, we assume app range is always continuous.
-        oldIssuerBalance.setAppFrom(oldIssuerBalance.getAppFrom() - oldRange);
-        balanceTrackRepository.save(oldIssuerBalance);
- 
-        // Revert the old receiver's balance
-        BalanceTrack oldReceiverBalance = balanceTrackRepository.findBalanceTrack(oldAcademicYearId, oldReceiverId)
-                .orElseThrow(() -> new RuntimeException("Old receiver's balance track not found."));
-        oldReceiverBalance.setAppAvblCnt(oldReceiverBalance.getAppAvblCnt() - oldRange);
-        balanceTrackRepository.save(oldReceiverBalance);
- 
-        // Step 3: Update the distribution record with the new values.
-        existingDistribution.setAcademicYear(academicYearRepository.findById(request.getAcademicYearId()).orElse(null));
-        existingDistribution.setState(stateRepository.findById(request.getStateId()).orElse(null));
-        existingDistribution.setZone(zoneRepository.findById(request.getZoneId()).orElse(null));
-        existingDistribution.setIssuedByType(appIssuedTypeRepository.findById(request.getIssuedByTypeId()).orElse(null));
-        existingDistribution.setIssuedToType(appIssuedTypeRepository.findById(request.getIssuedToTypeId()).orElse(null));
- 
-        City selectedCity = cityRepository.findById(request.getCityId()).orElse(null);
-        existingDistribution.setCity(selectedCity);
-        if (selectedCity != null) {
-            existingDistribution.setDistrict(selectedCity.getDistrict());
-        }
-       
-        existingDistribution.setIssued_to_emp_id(request.getIssuedToEmpId());
-        existingDistribution.setCreated_by(request.getCreatedBy());
-        existingDistribution.setAppStartNo(request.getAppStartNo());
-        existingDistribution.setAppEndNo(request.getAppEndNo());
-        existingDistribution.setTotalAppCount(request.getRange());
-        existingDistribution.setIsActive(1);
-        existingDistribution.setIssueDate(LocalDate.now());
- 
-        distributionRepository.save(existingDistribution);
- 
-        // Step 4: Apply the new balance changes to the updated issuer and receiver.
-        // This is essentially the same logic as the saveDistribution method.
-        // This handles cases where the issuer or receiver might have changed.
-       
-        // Update new issuer's balance
+        int oldIssuedToEmpId = existingDistribution.getIssued_to_emp_id();
         int newRange = request.getRange();
-        int newIssuerId = request.getCreatedBy();
-       
-        Optional<BalanceTrack> newIssuerBalanceOpt = balanceTrackRepository.findBalanceTrack(request.getAcademicYearId(), newIssuerId);
-        BalanceTrack newIssuerBalance;
-        if (newIssuerBalanceOpt.isPresent()) {
-            newIssuerBalance = newIssuerBalanceOpt.get();
+        int academicYearId = existingDistribution.getAcademicYear().getAcdcYearId();
+ 
+        // Step 2: Handle balance updates for old recipient
+        Optional<BalanceTrack> oldReceiverBalanceOpt = balanceTrackRepository.findBalanceTrack(academicYearId, oldIssuedToEmpId);
+        if (oldReceiverBalanceOpt.isPresent()) {
+            BalanceTrack oldReceiverBalance = oldReceiverBalanceOpt.get();
+            oldReceiverBalance.setAppAvblCnt(oldReceiverBalance.getAppAvblCnt() - oldRange);
+            // This is the crucial fix: the appTo for the old record must be adjusted.
+            oldReceiverBalance.setAppTo(request.getAppStartNo() -1);
+            balanceTrackRepository.save(oldReceiverBalance);
         } else {
-            StateApp stateApp = stateAppRepository.findStartNumber(request.getStateId(), newIssuerId, request.getAcademicYearId())
-                    .orElseThrow(() -> new RuntimeException("New issuer not configured in StateApp."));
-            newIssuerBalance = new BalanceTrack();
-            newIssuerBalance.setEmployee(employeeRepository.findById(newIssuerId).orElse(null));
-            newIssuerBalance.setAcademicYear(stateApp.getAcademicYear());
-            newIssuerBalance.setAppFrom(stateApp.getApp_start_no());
-            newIssuerBalance.setAppTo(stateApp.getApp_end_no());
-            newIssuerBalance.setAppAvblCnt(stateApp.getTotal_no_of_app());
-            newIssuerBalance.setIsActive(1);
-            newIssuerBalance.setCreatedBy(newIssuerId);
-            newIssuerBalance.setIssuedByType(appIssuedTypeRepository.findById(request.getIssuedByTypeId()).orElse(null));
+             throw new RuntimeException("Old balance track not found for employee ID: " + oldIssuedToEmpId);
         }
- 
-        if (newIssuerBalance.getAppAvblCnt() < newRange) {
-            throw new RuntimeException("Not enough applications in new issuer's balance. Available: " + newIssuerBalance.getAppAvblCnt() + ", Tried to distribute: " + newRange);
-        }
-       
-        newIssuerBalance.setAppAvblCnt(newIssuerBalance.getAppAvblCnt() - newRange);
-        newIssuerBalance.setAppFrom(request.getAppEndNo() + 1);
-        balanceTrackRepository.save(newIssuerBalance);
- 
-        // Update new receiver's balance
-        int newReceiverId = request.getIssuedToEmpId();
-        Optional<BalanceTrack> newReceiverBalanceOpt = balanceTrackRepository.findBalanceTrack(request.getAcademicYearId(), newReceiverId);
+        
+        // Step 3: Handle balance updates for the new recipient
+        Optional<BalanceTrack> newReceiverBalanceOpt = balanceTrackRepository.findBalanceTrack(academicYearId, request.getIssuedToEmpId());
         BalanceTrack newReceiverBalance;
         if (newReceiverBalanceOpt.isPresent()) {
             newReceiverBalance = newReceiverBalanceOpt.get();
@@ -314,17 +251,57 @@ public class ZoneService {
             newReceiverBalance.setAppTo(request.getAppEndNo());
         } else {
             newReceiverBalance = new BalanceTrack();
-            Employee newReceiverEmployee = employeeRepository.findById(newReceiverId)
-                    .orElseThrow(() -> new RuntimeException("New receiver employee not found."));
-            newReceiverBalance.setEmployee(newReceiverEmployee);
-            newReceiverBalance.setAcademicYear(academicYearRepository.findById(request.getAcademicYearId()).orElse(null));
+            newReceiverBalance.setEmployee(employeeRepository.findById(request.getIssuedToEmpId()).orElseThrow(() -> new RuntimeException("New receiver employee not found.")));
+            newReceiverBalance.setAcademicYear(academicYearRepository.findById(request.getAcademicYearId()).orElseThrow(() -> new RuntimeException("Academic year not found.")));
             newReceiverBalance.setAppFrom(request.getAppStartNo());
             newReceiverBalance.setAppTo(request.getAppEndNo());
             newReceiverBalance.setAppAvblCnt(newRange);
-            newReceiverBalance.setIssuedByType(appIssuedTypeRepository.findById(request.getIssuedToTypeId()).orElse(null));
+            newReceiverBalance.setIssuedByType(appIssuedTypeRepository.findById(request.getIssuedToTypeId()).orElseThrow(() -> new RuntimeException("Issued by type not found.")));
             newReceiverBalance.setIsActive(1);
             newReceiverBalance.setCreatedBy(request.getCreatedBy());
         }
         balanceTrackRepository.save(newReceiverBalance);
+ 
+        // Step 4: Update the main distribution record.
+        existingDistribution.setAcademicYear(academicYearRepository.findById(request.getAcademicYearId())
+            .orElseThrow(() -> new RuntimeException("Academic year not found for ID: " + request.getAcademicYearId())));
+        existingDistribution.setState(stateRepository.findById(request.getStateId())
+            .orElseThrow(() -> new RuntimeException("State not found for ID: " + request.getStateId())));
+        existingDistribution.setZone(zoneRepository.findById(request.getZoneId())
+            .orElseThrow(() -> new RuntimeException("Zone not found for ID: " + request.getZoneId())));
+        existingDistribution.setIssuedByType(appIssuedTypeRepository.findById(request.getIssuedByTypeId())
+            .orElseThrow(() -> new RuntimeException("Issued by type not found for ID: " + request.getIssuedByTypeId())));
+        existingDistribution.setIssuedToType(appIssuedTypeRepository.findById(request.getIssuedToTypeId())
+            .orElseThrow(() -> new RuntimeException("Issued to type not found for ID: " + request.getIssuedToTypeId())));
+ 
+        City selectedCity = cityRepository.findById(request.getCityId())
+            .orElseThrow(() -> new RuntimeException("City not found for ID: " + request.getCityId()));
+        existingDistribution.setCity(selectedCity);
+        existingDistribution.setDistrict(selectedCity.getDistrict());
+ 
+        existingDistribution.setIssued_to_emp_id(request.getIssuedToEmpId());
+        existingDistribution.setCreated_by(request.getCreatedBy());
+        existingDistribution.setAppStartNo(request.getAppStartNo());
+        existingDistribution.setAppEndNo(request.getAppEndNo());
+        existingDistribution.setTotalAppCount(newRange);
+        existingDistribution.setIsActive(1);
+        existingDistribution.setIssueDate(request.getIssueDate() != null ? request.getIssueDate() : LocalDate.now());
+ 
+        distributionRepository.save(existingDistribution);
+    }
+ 
+    // Helper method to adjust BalanceTrack records
+    private void adjustBalanceTrack(int academicYearId, int employeeId, int changeInCount) {
+        Optional<BalanceTrack> balanceOpt = balanceTrackRepository.findBalanceTrack(academicYearId, employeeId);
+        if (balanceOpt.isPresent()) {
+            BalanceTrack balance = balanceOpt.get();
+            balance.setAppAvblCnt(balance.getAppAvblCnt() + changeInCount);
+            // This logic might need to be more complex based on business rules.
+            // For a simple update, we assume appTo is updated elsewhere.
+            balanceTrackRepository.save(balance);
+        } else {
+            // This case should ideally not happen for an update operation if the old record was valid.
+            throw new RuntimeException("Balance track not found for employee ID: " + employeeId);
+        }
     }
 }

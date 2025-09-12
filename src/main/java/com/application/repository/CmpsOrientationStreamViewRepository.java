@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 import com.application.entity.CmpsOrientationStreamView;
 
 @Repository
-public interface CmpsOrientationStreamViewRepository extends JpaRepository<CmpsOrientationStreamView, Integer>{
+public interface CmpsOrientationStreamViewRepository extends JpaRepository<CmpsOrientationStreamView, String>{
 	
 	List<CmpsOrientationStreamView> findByCmpsId(int cmpsId);
+	
+	List<CmpsOrientationStreamView> findByStreamId(int streamId);
 }

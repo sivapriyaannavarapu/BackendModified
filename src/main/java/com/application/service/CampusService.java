@@ -1,18 +1,37 @@
 package com.application.service;
  
-import com.application.dto.AppNumberRangeDTO;
-import com.application.dto.DgmToCampusFormDTO;
-import com.application.dto.GenericDropdownDTO;
-import com.application.entity.*;
-import com.application.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
- 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.application.dto.AppNumberRangeDTO;
+import com.application.dto.DgmToCampusFormDTO;
+import com.application.dto.GenericDropdownDTO;
+import com.application.entity.BalanceTrack;
+import com.application.entity.Campaign;
+import com.application.entity.Campus;
+import com.application.entity.CampusProView;
+import com.application.entity.Distribution;
+import com.application.entity.District;
+import com.application.entity.Employee;
+import com.application.repository.AcademicYearRepository;
+import com.application.repository.AppIssuedTypeRepository;
+import com.application.repository.BalanceTrackRepository;
+import com.application.repository.CampaignRepository;
+import com.application.repository.CampusProViewRepository;
+import com.application.repository.CampusRepository;
+import com.application.repository.CityRepository;
+import com.application.repository.DistributionRepository;
+import com.application.repository.DistrictRepository;
+import com.application.repository.EmployeeRepository;
+import com.application.repository.StateRepository;
+
+import lombok.NonNull;
  
 @Service
 public class CampusService {
@@ -107,14 +126,14 @@ public class CampusService {
         int dgmUserTypeId = getDgmUserTypeId();
         int appNoFrom = Integer.parseInt(formDto.getApplicationNoFrom());
         int appNoTo = Integer.parseInt(formDto.getApplicationNoTo());
-
+ 
         BalanceTrack dgmBalance = balanceTrackRepository.findById(formDto.getSelectedBalanceTrackId())
                 .orElseThrow(() -> new RuntimeException("The selected application range for the DGM was not found."));
-        
+       
         if (appNoFrom < dgmBalance.getAppFrom() || appNoTo > dgmBalance.getAppTo()) {
             throw new IllegalStateException("The submitted application number range is outside the DGM's available range.");
         }
-        
+       
         dgmBalance.setAppAvblCnt(dgmBalance.getAppAvblCnt() - formDto.getRange());
         dgmBalance.setAppFrom(appNoTo + 1);
         balanceTrackRepository.save(dgmBalance);
@@ -140,31 +159,26 @@ public class CampusService {
         }
         balanceTrackRepository.save(proBalance);
  
-        // --- 3. Save the Distribution Record ---
         Distribution distribution = new Distribution();
-        
+       
         academicYearRepository.findById(formDto.getAcademicYearId()).ifPresent(distribution::setAcademicYear);
         districtRepository.findById(formDto.getDistrictId()).ifPresent(distribution::setDistrict);
         cityRepository.findById(formDto.getCityId()).ifPresent(distribution::setCity);
         campusRepository.findById(formDto.getCampusId()).ifPresent(distribution::setCampus);
         appIssuedTypeRepository.findById(dgmUserTypeId).ifPresent(distribution::setIssuedByType);
         appIssuedTypeRepository.findById(formDto.getIssuedToId()).ifPresent(distribution::setIssuedToType);
-        
+       
         Campus selectedCampus = campusRepository.findById(formDto.getCampusId()).orElse(null);
         distribution.setCampus(selectedCampus);
-
+ 
         if (selectedCampus != null) {
             distribution.setZone(selectedCampus.getZone());
         }
  
-        // This logic correctly derives the State from the selected District
-//        if (distribution.getDistrict() != null) {
-//            distribution.setState(distribution.getDistrict().getState());
-//        }
-        
-        districtRepository.findById(formDto.getDistrictId())
-        .ifPresent(district -> distribution.setState(district.getState()));
-        
+        if (distribution.getDistrict() != null) {
+            distribution.setState(distribution.getDistrict().getState());
+        }
+       
         distribution.setAppStartNo(appNoFrom);
         distribution.setAppEndNo(appNoTo);
         distribution.setTotalAppCount(formDto.getRange());
@@ -172,102 +186,103 @@ public class CampusService {
         distribution.setIsActive(1);
         distribution.setCreated_by(dgmUserId);
         distribution.setIssued_to_emp_id(proEmployeeId);
-        
+       
         distributionRepository.save(distribution);
     }
-    
-    //update
+ 
     @Transactional
-    public void updateDgmToCampusForm(int distributionId, DgmToCampusFormDTO formDto) {
-        // --- 1. Fetch Existing Records ---
-        Distribution oldDistribution = distributionRepository.findById(distributionId)
+    public void updateDgmToCampusForm(@NonNull Integer distributionId, @NonNull DgmToCampusFormDTO formDto) {
+        // Step 1: Find the existing distribution record and its original values.
+        Distribution existingDistribution = distributionRepository.findById(distributionId)
                 .orElseThrow(() -> new RuntimeException("Original distribution record not found for ID: " + distributionId));
  
-        int oldProId = oldDistribution.getIssued_to_emp_id();
-        int oldAppStartNo = oldDistribution.getAppStartNo();
-        int oldAppEndNo = oldDistribution.getAppEndNo();
-        int oldRange = oldAppEndNo - oldAppStartNo + 1;
- 
-        // --- 2. Revert the Original Transaction ---
-        // Return the original range to the DGM's balance
-        BalanceTrack dgmBalance = balanceTrackRepository.findById(formDto.getSelectedBalanceTrackId())
-                .orElseThrow(() -> new RuntimeException("DGM's balance track not found."));
-        dgmBalance.setAppAvblCnt(dgmBalance.getAppAvblCnt() + oldRange);
-        dgmBalance.setAppFrom(oldAppStartNo); // Revert the 'from' number to the original start
-        balanceTrackRepository.save(dgmBalance);
- 
-        // Revert the original PRO's balance
-        BalanceTrack oldProBalance = balanceTrackRepository.findBalanceTrack(oldDistribution.getAcademicYear().getAcdcYearId(), oldProId)
-                .orElseThrow(() -> new RuntimeException("Original PRO's balance track not found."));
-        oldProBalance.setAppAvblCnt(oldProBalance.getAppAvblCnt() - oldRange);
-        oldProBalance.setAppTo(oldAppStartNo - 1);
-        balanceTrackRepository.save(oldProBalance);
- 
-        // --- 3. Apply the New Transaction (same logic as submitDgmToCampusForm) ---
+        int oldRange = existingDistribution.getTotalAppCount();
+        int oldIssuedToEmpId = existingDistribution.getIssued_to_emp_id();
+        int newAppFrom = Integer.parseInt(formDto.getApplicationNoFrom());
+        int newAppTo = Integer.parseInt(formDto.getApplicationNoTo());
+        int newRange = formDto.getRange();
         int dgmUserId = formDto.getUserId();
         int newProEmployeeId = formDto.getProEmployeeId();
-        int dgmUserTypeId = getDgmUserTypeId();
-        int newAppNoFrom = Integer.parseInt(formDto.getApplicationNoFrom());
-        int newAppNoTo = Integer.parseInt(formDto.getApplicationNoTo());
-        int newRange = formDto.getRange();
+        int academicYearId = formDto.getAcademicYearId();
  
-        // Check if the new range is within the DGM's new available range
-        if (newAppNoFrom < dgmBalance.getAppFrom() || newAppNoTo > dgmBalance.getAppTo()) {
-            throw new IllegalStateException("The new application number range is outside the DGM's available range after reversion.");
-        }
- 
-        dgmBalance.setAppAvblCnt(dgmBalance.getAppAvblCnt() - newRange);
-        dgmBalance.setAppFrom(newAppNoTo + 1);
-        balanceTrackRepository.save(dgmBalance);
- 
-        // Create or Update the new PRO's balance
-        Optional<BalanceTrack> newProBalanceOpt = balanceTrackRepository.findBalanceTrack(formDto.getAcademicYearId(), newProEmployeeId);
-        BalanceTrack newProBalance;
-        if (newProBalanceOpt.isPresent()) {
-            newProBalance = newProBalanceOpt.get();
-            newProBalance.setAppAvblCnt(newProBalance.getAppAvblCnt() + newRange);
-            newProBalance.setAppTo(newAppNoTo);
+        // Step 2: Adjust the DGM's (issuer) balance by the net difference.
+        // This is a more direct and reliable approach than a full revert and re-apply.
+        Optional<BalanceTrack> dgmBalanceOpt = balanceTrackRepository.findBalanceTrack(academicYearId, dgmUserId);
+        if (dgmBalanceOpt.isPresent()) {
+            BalanceTrack dgmBalance = dgmBalanceOpt.get();
+            int rangeDifference = newRange - oldRange;
+            dgmBalance.setAppAvblCnt(dgmBalance.getAppAvblCnt() - rangeDifference);
+            // Assuming sequential range usage, update the appFrom for the issuer.
+            dgmBalance.setAppFrom(newAppTo + 1);
+            balanceTrackRepository.save(dgmBalance);
         } else {
-            newProBalance = new BalanceTrack();
-            Employee newProEmployee = employeeRepository.findById(newProEmployeeId)
-                    .orElseThrow(() -> new RuntimeException("New Receiver PRO employee not found for ID: " + newProEmployeeId));
-            newProBalance.setEmployee(newProEmployee);
-            newProBalance.setAcademicYear(academicYearRepository.findById(formDto.getAcademicYearId()).orElse(null));
-            newProBalance.setAppFrom(newAppNoFrom);
-            newProBalance.setAppTo(newAppNoTo);
-            newProBalance.setAppAvblCnt(newRange);
-            newProBalance.setIssuedByType(appIssuedTypeRepository.findById(formDto.getIssuedToId()).orElse(null));
-            newProBalance.setIsActive(1);
-            newProBalance.setCreatedBy(dgmUserId);
+            throw new RuntimeException("DGM's balance track not found.");
         }
-        balanceTrackRepository.save(newProBalance);
  
-        // --- 4. Update the Distribution Record ---
-        oldDistribution.setAppStartNo(newAppNoFrom);
-        oldDistribution.setAppEndNo(newAppNoTo);
-        oldDistribution.setTotalAppCount(newRange);
-        oldDistribution.setIssued_to_emp_id(newProEmployeeId);
-        oldDistribution.setCreated_by(dgmUserId);
-        oldDistribution.setIssueDate(LocalDate.now()); 
-       
-        // Update other fields as needed
-        academicYearRepository.findById(formDto.getAcademicYearId()).ifPresent(oldDistribution::setAcademicYear);
-        districtRepository.findById(formDto.getDistrictId()).ifPresent(oldDistribution::setDistrict);
-        cityRepository.findById(formDto.getCityId()).ifPresent(oldDistribution::setCity);
-       
-        Campus selectedCampus = campusRepository.findById(formDto.getCampusId()).orElse(null);
-        oldDistribution.setCampus(selectedCampus);
+        // Step 3: Adjust the balances of the old and new PROs (receivers).
+        if (oldIssuedToEmpId != newProEmployeeId) {
+            // A new PRO is receiving the applications, so adjust both balances.
+            // Revert the old PRO's balance.
+            Optional<BalanceTrack> oldProBalanceOpt = balanceTrackRepository.findBalanceTrack(academicYearId, oldIssuedToEmpId);
+            if (oldProBalanceOpt.isPresent()) {
+                BalanceTrack oldProBalance = oldProBalanceOpt.get();
+                oldProBalance.setAppAvblCnt(oldProBalance.getAppAvblCnt() - oldRange);
+                // This is the crucial fix: correctly adjust the appTo for the old record.
+                oldProBalance.setAppTo(newAppFrom - 1);
+                balanceTrackRepository.save(oldProBalance);
+            } else {
+                throw new RuntimeException("Original PRO's balance track not found.");
+            }
  
-        if (selectedCampus != null) {
-            oldDistribution.setZone(selectedCampus.getZone());
+            // Add the new range to the new PRO's balance.
+            Optional<BalanceTrack> newProBalanceOpt = balanceTrackRepository.findBalanceTrack(academicYearId, newProEmployeeId);
+            BalanceTrack newProBalance;
+            if (newProBalanceOpt.isPresent()) {
+                newProBalance = newProBalanceOpt.get();
+                newProBalance.setAppAvblCnt(newProBalance.getAppAvblCnt() + newRange);
+                newProBalance.setAppTo(newAppTo);
+            } else {
+                newProBalance = new BalanceTrack();
+                newProBalance.setEmployee(employeeRepository.findById(newProEmployeeId).orElseThrow(() -> new RuntimeException("New PRO employee not found.")));
+                newProBalance.setAcademicYear(academicYearRepository.findById(academicYearId).orElseThrow(() -> new RuntimeException("Academic year not found.")));
+                newProBalance.setAppFrom(newAppFrom);
+                newProBalance.setAppTo(newAppTo);
+                newProBalance.setAppAvblCnt(newRange);
+                newProBalance.setIssuedByType(appIssuedTypeRepository.findById(formDto.getIssuedToId()).orElseThrow(() -> new RuntimeException("Issued to type not found.")));
+                newProBalance.setIsActive(1);
+                newProBalance.setCreatedBy(dgmUserId);
+            }
+            balanceTrackRepository.save(newProBalance);
+        } else {
+            // The PRO is the same, so just adjust their balance by the net change in range.
+            Optional<BalanceTrack> proBalanceOpt = balanceTrackRepository.findBalanceTrack(academicYearId, newProEmployeeId);
+            if (proBalanceOpt.isPresent()) {
+                BalanceTrack proBalance = proBalanceOpt.get();
+                int rangeDifference = newRange - oldRange;
+                proBalance.setAppAvblCnt(proBalance.getAppAvblCnt() + rangeDifference);
+                proBalance.setAppTo(newAppTo);
+                balanceTrackRepository.save(proBalance);
+            } else {
+                throw new RuntimeException("PRO's balance track not found.");
+            }
         }
-       
-        districtRepository.findById(formDto.getDistrictId())
-          .ifPresent(district -> oldDistribution.setState(district.getState()));
-        
-        appIssuedTypeRepository.findById(dgmUserTypeId).ifPresent(oldDistribution::setIssuedByType);
-        appIssuedTypeRepository.findById(formDto.getIssuedToId()).ifPresent(oldDistribution::setIssuedToType);
  
-        distributionRepository.save(oldDistribution);
-    }
-}
+        // Step 4: Update the Distribution Record itself.
+        existingDistribution.setAcademicYear(academicYearRepository.findById(academicYearId).orElse(null));
+        existingDistribution.setDistrict(districtRepository.findById(formDto.getDistrictId()).orElse(null));
+        existingDistribution.setCity(cityRepository.findById(formDto.getCityId()).orElse(null));
+        existingDistribution.setCampus(campusRepository.findById(formDto.getCampusId()).orElse(null));
+ 
+        if (existingDistribution.getDistrict() != null) {
+            existingDistribution.setState(existingDistribution.getDistrict().getState());
+        }
+ 
+        existingDistribution.setAppStartNo(newAppFrom);
+        existingDistribution.setAppEndNo(newAppTo);
+        existingDistribution.setTotalAppCount(newRange);
+        existingDistribution.setIssueDate(LocalDate.now());
+        existingDistribution.setIssued_to_emp_id(newProEmployeeId);
+        existingDistribution.setCreated_by(dgmUserId);
+ 
+        distributionRepository.save(existingDistribution);
+    }}

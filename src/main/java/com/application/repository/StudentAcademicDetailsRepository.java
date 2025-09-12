@@ -15,5 +15,9 @@ public interface StudentAcademicDetailsRepository  extends JpaRepository<Student
 	
 	@Query("SELECT sad.stud_adms_id FROM StudentAcademicDetails sad WHERE sad.studAdmsNo = ?1")
     Optional<Integer> findIdByStudAdmsNo(String studAdmsNo);
+	
+	
+
+
 
 }

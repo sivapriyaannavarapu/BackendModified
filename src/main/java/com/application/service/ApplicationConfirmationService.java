@@ -1,10 +1,12 @@
 package com.application.service;
 
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -179,6 +181,32 @@ public class ApplicationConfirmationService {
         return foodTypeRepository.findAll();
     }
 
+    public List<ProgramDTO> getProgramsByStreamId(int streamId) {
+        // Step 1: Get orientation IDs based on the stream ID
+        List<CmpsOrientationStreamView> streamViews = cmpsOrientationStreamViewRepository.findByStreamId(streamId);
+        
+        List<Integer> orientationIds = streamViews.stream()
+                .map(CmpsOrientationStreamView::getOrientationId)
+                .distinct() // Add distinct to avoid redundant lookups in the next step
+                .collect(Collectors.toList());
+
+        if (orientationIds.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if no orientation is found
+        }
+        
+        // Step 2: Get program details for each orientation ID
+        List<CmpsOrientationProgramView> programViews = new ArrayList<>();
+        for (Integer orientationId : orientationIds) {
+            programViews.addAll(cmpsOrientationProgramViewRepository.findByOrientationId(orientationId));
+        }
+
+        // Step 3: Extract unique program IDs and names into DTOs
+        return programViews.stream()
+                .map(view -> new ProgramDTO(view.getProgramId(), view.getProgramName()))
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
     public Map<String, Object> getDropdownAcademicYears() {
         int currentYear = Year.now().getValue();
         int nextYear = currentYear + 1;
@@ -238,6 +266,7 @@ public class ApplicationConfirmationService {
     
     public List<BatchDTO> getBatchesByOrientationId(int orientationId) {
         return cmpsOrientationBatchFeeViewRepository.findByOrientationId(orientationId).stream()
+                         .filter(Objects::nonNull) // Add this line to filter out null elements
                          .map(data -> new BatchDTO(data.getOrientationBatchId(), data.getOrientationBatchName()))
                          .distinct()
                          .collect(Collectors.toList());

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.application.dto.ApplicationConfirmationDto;
 import com.application.dto.BatchDTO;
-import com.application.dto.BatchDatesResponse;
 import com.application.dto.BatchDetailsDTO;
 import com.application.dto.CampusAndZoneDTO;
 import com.application.dto.EmployeeDetailsDTO;
@@ -28,7 +27,6 @@ import com.application.dto.SectionDTO;
 import com.application.dto.StreamDTO;
 import com.application.dto.StudentDetailsDTO;
 import com.application.entity.AcademicYear;
-import com.application.entity.BloodGroup;
 import com.application.entity.ConcessionReason;
 import com.application.entity.ExamProgram;
 import com.application.entity.FoodType;
@@ -255,5 +253,18 @@ public class ApplicationConfirmationController {
     public List<SectionDTO> getSectionsByBatchId(@PathVariable int batchId) {
         return service.getSectionsByBatchId(batchId);
     }
+    
+    @GetMapping("/getprogram/{streamId}")
+    public ResponseEntity<List<ProgramDTO>> getProgramsByStreamId(@PathVariable int streamId) {
+        
+        List<ProgramDTO> programs = service.getProgramsByStreamId(streamId);
+
+        if (programs.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(programs);
+    }
+
 
 }
