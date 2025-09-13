@@ -122,5 +122,9 @@ public class StudentAcademicDetails {
 	@ManyToOne
 	@JoinColumn(name = "cmps_orientation_id")
 	private CmpsOrientation cmpsOrientation;
+	
+	@ManyToOne
+	@JoinColumn(name = "pre_school_type_id",referencedColumnName = "school_type_id")
+	private CampusSchoolType preCampusSchoolType;
 
 }

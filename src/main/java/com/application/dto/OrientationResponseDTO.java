@@ -20,6 +20,4 @@ public class OrientationResponseDTO {
     private float orientation_fee;
     private String section_name;
     private Integer sectionId;
-    private int classId;
-    private String className;
 }

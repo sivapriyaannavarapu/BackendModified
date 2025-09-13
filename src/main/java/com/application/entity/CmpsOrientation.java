@@ -34,7 +34,4 @@ public class CmpsOrientation {
 	@JoinColumn(name = "orientation_batch_id")
 	private OrientationBatch orientationBatch;
 	
-//	@ManyToOne
-//	@JoinColumn(name = "fee_set_id")
-//	private FeeSets feeSets;
 }
