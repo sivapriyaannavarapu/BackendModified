@@ -24,6 +24,7 @@ public class StudentCoupon {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int stud_coupon_id;
 	private int is_active;
+	private int created_by;
 	
 	@ManyToOne
 	@JoinColumn(name = "application_coupon_id")

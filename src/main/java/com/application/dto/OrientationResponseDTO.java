@@ -19,5 +19,7 @@ public class OrientationResponseDTO {
     private Date orientation_end_date;
     private float orientation_fee;
     private String section_name;
-    private int section_id;
+    private Integer sectionId;
+    private int classId;
+    private String className;
 }

@@ -27,6 +27,7 @@ import com.application.dto.OrientationDTO;
 import com.application.dto.ProgramDTO;
 import com.application.dto.SectionDTO;
 import com.application.dto.StreamDTO;
+import com.application.dto.StudentAdmissionDTO;
 import com.application.dto.StudentDetailsDTO;
 import com.application.entity.AcademicYear;
 import com.application.entity.CmpsOrientation;
@@ -186,6 +187,10 @@ public class ApplicationConfirmationService {
     public List<FoodType> getAllFoodTypes() {
         return foodTypeRepository.findAll();
     }
+    
+//    public StudentAdmissionDTO getAllSaleDetails(int admissionNo) {
+//    	
+//    }
 
     public List<ProgramDTO> getProgramsByStreamId(int streamId) {
         // Step 1: Get orientation IDs based on the stream ID

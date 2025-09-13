@@ -54,4 +54,10 @@ public class CmpsOrientationBatchFeeView {
     
     @Column(name = "class_name")
     private String className;
+    
+    @Column(name = "study_type_id")
+    private int studyTypeId;
+    
+    @Column(name = "study_type_name")
+    private String studyTypeName;
 }

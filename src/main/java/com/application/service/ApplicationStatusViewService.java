@@ -15,24 +15,7 @@ public class ApplicationStatusViewService {
  
     @Autowired
     private AppStatusTrackViewRepository appStatusTrackViewRepository;
- 
-//    public List<ApplicationStatusViewDTO> getApplicationStatusViewData() {
-//        List<AppStatusTrackView> entities = appStatusTrackViewRepository.findAll();
-// 
-//        return entities.stream().map(entity -> {
-//            ApplicationStatusViewDTO dto = new ApplicationStatusViewDTO();
-//            dto.setApplicationNo(entity.getNum());
-//            dto.setPro(entity.getPro_name());
-//            dto.setCampus(entity.getCmps_name());
-//            dto.setDgm(entity.getDgm_name());
-//            dto.setZone(entity.getZone_name());
-//
-//            dto.setDate(entity.getDate());
-//            dto.setStatus(entity.getStatus());
-//            return dto;
-//        }).collect(Collectors.toList());
-//    }
-    
+
     public List<AppStatusTrackView> getApplicationStatusByCampus(int cmpsId) {
         return appStatusTrackViewRepository.findByCmps_id(cmpsId);
     }
