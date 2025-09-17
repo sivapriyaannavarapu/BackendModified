@@ -4,7 +4,7 @@ import lombok.Data;
  
 @Data
 public class ZonePerformanceDTO {
-    private Integer entityId;
+    // Renamed 'entityId' to 'zoneName' and changed the type to String
+    private String zoneName;
     private Double performancePercentage;
- 
 }

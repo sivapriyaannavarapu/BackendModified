@@ -447,6 +447,10 @@ public Optional<OrientationBatchDetailsDTO> getBatchDetails(int cmpsId, int clas
         // --- 1. Save Academic Details ---
         StudentAcademicDetails academicDetails = new StudentAcademicDetails();
         academicYearRepository.findById(26).ifPresent(academicDetails::setAcademicYear);
+        if (academicDetailsRepo.existsByStudAdmsNo(formData.getStudAdmsNo())) {
+            // You should create a custom exception for this
+            throw new RuntimeException("Admission Number '" + formData.getStudAdmsNo() + "' already exists.");
+        }
         academicDetails.setStudAdmsNo(formData.getStudAdmsNo());
         academicDetails.setFirst_name(formData.getStudentName());
         academicDetails.setLast_name(formData.getSurname());

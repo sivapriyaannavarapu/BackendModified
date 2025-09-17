@@ -13,15 +13,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.application.dto.AppNumberRangeDTO;
 import com.application.dto.ApplicationStartEndDto;
+import com.application.dto.EmployeeApplicationsDTO;
 import com.application.dto.GenericDropdownDTO;
 import com.application.entity.AcademicYear;
 import com.application.entity.Campus;
 import com.application.entity.City;
+import com.application.entity.Dgm;
 import com.application.entity.District;
 import com.application.entity.Employee;
 import com.application.entity.State;
 import com.application.entity.Zone;
 import com.application.repository.EmployeeRepository;
+import com.application.repository.SchoolDetailsRepository;
 import com.application.service.CampusService;
 import com.application.service.DgmService;
 import com.application.service.ZoneService;
@@ -30,6 +33,8 @@ import com.application.service.ZoneService;
 @RequestMapping("/distribution/gets")
 @CrossOrigin(origins = "*")
 public class DistributionGet {
+
+    private final SchoolDetailsRepository schoolDetailsRepository;
 	
 	@Autowired
 	EmployeeRepository employeeRepository;
@@ -39,6 +44,13 @@ public class DistributionGet {
 	
 	@Autowired
 	private ZoneService distributionService;
+	
+	@Autowired
+	private DgmService service;
+
+    DistributionGet(SchoolDetailsRepository schoolDetailsRepository) {
+        this.schoolDetailsRepository = schoolDetailsRepository;
+    }
 	
 	@GetMapping("/academic-years")
 	public ResponseEntity<List<AcademicYear>> getAcademicYears() {
@@ -146,6 +158,7 @@ public class DistributionGet {
 	    
 	    @Autowired
 	    private CampusService dgmService;
+	   
 	  
 	    @GetMapping("/districts/{stateId}")
 	    public List<GenericDropdownDTO> getDistrictsByState(@PathVariable int stateId) {
@@ -199,6 +212,13 @@ public class DistributionGet {
 	        List<GenericDropdownDTO> campaigns = campusService.getCampaignsByCityId(cityId);
 	        return ResponseEntity.ok(campaigns);
 	    }
-	 
-	 
+	    
+	    @GetMapping("/employee/{employeeId}/applications/{academicYearId}")
+	    public EmployeeApplicationsDTO getEmployeeApplications(
+	            @PathVariable int employeeId,
+	            @PathVariable int academicYearId) {
+	        return service.getEmployeeAvailableApplications(academicYearId, employeeId);
+	    }
+
+	    
 }

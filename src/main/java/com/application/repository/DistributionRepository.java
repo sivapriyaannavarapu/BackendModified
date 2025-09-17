@@ -16,6 +16,6 @@ public interface DistributionRepository extends JpaRepository<Distribution, Inte
     Integer findMaxAppEndNo(@Param("stateId") int stateId, @Param("userId") int userId, @Param("academicYearId") int academicYearId);
     
     @Query(value = "SELECT * FROM sce_application.sce_app_distrubution d WHERE d.created_by = :empId", nativeQuery = true)
-    List<Distribution> findByCreatedBy(@Param("empId") int empId);
+    List<Distribution> findByCreatedBy(@Param("empId") int empId); 
 
 }

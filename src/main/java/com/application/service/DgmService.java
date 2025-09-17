@@ -1,17 +1,33 @@
 package com.application.service;
-import com.application.dto.AppNumberRangeDTO;
-import com.application.dto.FormSubmissionDTO;
-import com.application.dto.GenericDropdownDTO;
-import com.application.entity.*;
-import com.application.repository.*;
-import lombok.NonNull;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.application.dto.AppNumberRangeDTO;
+import com.application.dto.EmployeeApplicationsDTO;
+import com.application.dto.FormSubmissionDTO;
+import com.application.dto.GenericDropdownDTO;
+import com.application.entity.BalanceTrack;
+import com.application.entity.Campus;
+import com.application.entity.Distribution;
+import com.application.entity.Employee;
+import com.application.entity.Zone;
+import com.application.repository.AcademicYearRepository;
+import com.application.repository.AppIssuedTypeRepository;
+import com.application.repository.BalanceTrackRepository;
+import com.application.repository.CampusRepository;
+import com.application.repository.CityRepository;
+import com.application.repository.DistributionRepository;
+import com.application.repository.EmployeeRepository;
+import com.application.repository.ZoneRepository;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
  
 @Service
 @RequiredArgsConstructor
@@ -156,6 +172,32 @@ public class DgmService {
         
         distributionRepository.save(distribution);
     }
+    
+ // ---------------------- NEW METHOD ----------------------
+    public EmployeeApplicationsDTO getEmployeeAvailableApplications(int academicYearId, int employeeId) {
+
+        List<BalanceTrack> balances = balanceTrackRepository.findAppNumberRanges(academicYearId, employeeId);
+
+        if (balances.isEmpty()) {
+            throw new RuntimeException("No available applications found for employeeId: " + employeeId);
+        }
+
+        List<Integer> availableApplications = new ArrayList<>();
+
+        for (BalanceTrack balance : balances) {
+            int from = balance.getAppFrom();
+            int to = balance.getAppTo();
+
+            for (int i = from; i <= to; i++) {
+                availableApplications.add(i);
+            }
+        }
+
+        // ✅ Pass all 3 args because @AllArgsConstructor expects them
+        return new EmployeeApplicationsDTO(employeeId, availableApplications, availableApplications.size());
+    }
+
+
     
     //---------------------- NEW METHOD FOR UPDATING A RECORD ----------------------
     @Transactional

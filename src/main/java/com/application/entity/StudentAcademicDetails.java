@@ -25,7 +25,7 @@ public class StudentAcademicDetails {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int stud_adms_id;
-	@Column(name = "stud_adms_no") 
+	@Column(name = "stud_adms_no",unique = true, nullable = false) 
 	private String studAdmsNo;
 	private String ht_no;
 	private String first_name;
