@@ -187,9 +187,6 @@ public class ApplicationConfirmationController {
     
     @GetMapping("/examPrograms/{programId}")
     public List<ExamProgramDTO> getExamProgramsByProgram(@PathVariable int programId) {
-        ProgramName programName = new ProgramName();  
-        programName.setProgramId(programId);
-        
         return service.getExamProgramsByProgramId(programId);
     }
     

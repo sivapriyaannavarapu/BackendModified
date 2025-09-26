@@ -18,7 +18,7 @@ public interface BalanceTrackRepository extends JpaRepository<BalanceTrack, Inte
     // Existing query
     @Query("SELECT b FROM BalanceTrack b WHERE b.academicYear.acdcYearId = :academicYearId AND b.employee.emp_id = :employeeId")
     Optional<BalanceTrack> findBalanceTrack(
-        @Param("academicYearId") int academicYearId, 
+        @Param("academicYearId") int academicYearId,
         @Param("employeeId") int employeeId
     );
     

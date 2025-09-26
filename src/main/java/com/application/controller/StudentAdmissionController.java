@@ -584,17 +584,17 @@ public class StudentAdmissionController {
         return studentAdmissionService.getAllCastes();
     }
     
-    @PostMapping("/applyCoupon")
-    public ResponseEntity<?> applyCoupon(@RequestBody ApplyCouponDTO dto) {
-        try {
-            double discountAmount = studentAdmissionService.applyCoupon(dto);
-            return ResponseEntity.ok(discountAmount);
-        } catch (EntityNotFoundException | IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
-        }
-    }
+//    @PostMapping("/applyCoupon")
+//    public ResponseEntity<?> applyCoupon(@RequestBody ApplyCouponDTO dto) {
+//        try {
+//            double discountAmount = studentAdmissionService.applyCoupon(dto);
+//            return ResponseEntity.ok(discountAmount);
+//        } catch (EntityNotFoundException | IllegalStateException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
+//        }
+//    }
 //
 //    // --- Endpoints for Get By ID ---
 //    @GetMapping("/student-type/{id}")

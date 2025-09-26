@@ -1,21 +1,20 @@
 package com.application.service;
-
+ 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+ 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+ 
 import com.application.dto.AddressDetailsDTO;
-import com.application.dto.ApplyCouponDTO;
 import com.application.dto.BankDetailsDTO;
-import com.application.dto.BatchDTO;
 import com.application.dto.ClassDTO;
 import com.application.dto.ConcessionEntryDTO;
 import com.application.dto.CourseFeeDTO;
@@ -29,13 +28,10 @@ import com.application.dto.ProConcessionDTO;
 import com.application.dto.SiblingDTO;
 import com.application.dto.StudentAdmissionDTO;
 import com.application.dto.StudentConcessionDetailsDTO;
-import com.application.entity.ApplicationCoupon;
 import com.application.entity.Campus;
-import com.application.entity.CampusSchoolType;
 import com.application.entity.CmpsOrientation;
 import com.application.entity.CmpsOrientationBatchFeeView;
 import com.application.entity.Employee;
-import com.application.entity.EmployeeCoupon;
 import com.application.entity.OrganizationBankDetails;
 import com.application.entity.ParentDetails;
 import com.application.entity.PaymentDetails;
@@ -47,7 +43,6 @@ import com.application.entity.StudentAddress;
 import com.application.entity.StudentApplicationTransaction;
 import com.application.entity.StudentClass;
 import com.application.entity.StudentConcessionType;
-import com.application.entity.StudentCoupon;
 import com.application.entity.StudentOrientationDetails;
 import com.application.entity.StudentPersonalDetails;
 import com.application.entity.StudyType;
@@ -101,14 +96,14 @@ import com.application.repository.StudentPersonalDetailsRepository;
 import com.application.repository.StudentRelationRepository;
 import com.application.repository.StudentTypeRepository;
 import com.application.repository.StudyTypeRepository;
-
+ 
 import jakarta.persistence.EntityNotFoundException;
-
+ 
 @Service
 public class StudentAdmissionService {
-
+ 
     private static final Logger logger = LoggerFactory.getLogger(StudentAdmissionService.class);
-
+ 
     // region Repositories
     @Autowired private StudentAcademicDetailsRepository academicDetailsRepo;
     @Autowired private StudentPersonalDetailsRepository personalDetailsRepo;
@@ -173,161 +168,144 @@ public class StudentAdmissionService {
  
     @Autowired
     private StudentCouponRepository studentCouponRepository;
-    // endregion
-
-    // region Dropdown and GetById Methods
-    
+ 
+ 
+@Cacheable("religions")
     public List<GenericDropdownDTO> getAllReligions() {
         return religionRepo.findAll().stream()
                 .map(r -> new GenericDropdownDTO(r.getReligion_id(), r.getReligion_type()))
                 .collect(Collectors.toList());
     }
-
+ 
+    @Cacheable("castes")
     public List<GenericDropdownDTO> getAllCastes() {
         return casteRepo.findAll().stream()
                 .map(c -> new GenericDropdownDTO(c.getCaste_id(), c.getCaste_type()))
                 .collect(Collectors.toList());
     }
     
+    @Cacheable("admissionTypes")
     public List<GenericDropdownDTO> getAllAdmissionTypes() {
         return admissionTypeRepo.findAll().stream()
                 .map(t -> new GenericDropdownDTO(t.getAdms_type_id(), t.getAdms_type_name()))
                 .collect(Collectors.toList());
     }
-
-  
-
+ 
+    @Cacheable("genders")
     public List<GenericDropdownDTO> getAllGenders() {
         return genderRepo.findAll().stream().map(g -> new GenericDropdownDTO(g.getGender_id(), g.getGenderName()))
                 .collect(Collectors.toList());
     }
-
+ 
+    @Cacheable("campuses")
     public List<GenericDropdownDTO> getAllCampuses() {
         return campusRepo.findAll().stream().map(c -> new GenericDropdownDTO(c.getCampusId(), c.getCampusName()))
                 .collect(Collectors.toList());
     }
     
-   
-    
-//    public List<OrientationResponseDTO> getOrientationsByCampus(int campusId) {
-//        List<CmpsOrientationBatchFeeView> orientations = cmpsOrientationBatchFeeViewRepo.findByCampusId(campusId);
-//        return orientations.stream()
-//                .filter(entity -> entity != null) // This line is the fix
-//                .map(this::convertToOrientationResponseDto)
-//                .collect(Collectors.toList());
-//    }
-    
+    @Cacheable("studentClasses")
     public List<GenericDropdownDTO> getAllStudentclass() {
         return classRepo.findAll().stream()
                 .map(studentClass -> new GenericDropdownDTO(studentClass.getClassId(), studentClass.getClassName()))
                 .collect(Collectors.toList());
     }
     
+    @Cacheable(value = "studyTypes", key = "#id")
     public StudyType getStudyTypeById(int id) {
         Optional<StudyType> studyTypeOptional = studyTypeRepo.findById(id);
-        
-        // Check if the entity was found before returning
         return studyTypeOptional.orElse(null);
     }
     
+    @Cacheable("quotas")
     public List<GenericDropdownDTO> getAllQuotas() {
         return quotaRepo.findAll().stream()
                 .map(quota -> new GenericDropdownDTO(quota.getQuota_id(), quota.getQuota_name()))
                 .collect(Collectors.toList());
     }
     
+    @Cacheable("employees")
     public List<GenericDropdownDTO> getAllEmployees() {
         return employeeRepo.findAll().stream()
                 .map(employee -> new GenericDropdownDTO(employee.getEmp_id(), employee.getFirst_name() + " " + employee.getLast_name()))
                 .collect(Collectors.toList());
     }
     
-    
-    public List<GenericDropdownDTO> getAllSchoolTypes() 
+    @Cacheable("schoolTypes")
+    public List<GenericDropdownDTO> getAllSchoolTypes()
     {         return campusSchoolTypeReposirtory.findAll().stream()            
     		.map(schoolType -> new GenericDropdownDTO(schoolType.getSchool_type_id(), schoolType.getSchool_type_name())) .collect(Collectors.toList()); }
+    
+    @Cacheable("concessionReasons")
     public List<GenericDropdownDTO> getAllConcessionReasons() {
         return concessionReasonRepo.findAll().stream()
                 .map(reason -> new GenericDropdownDTO(reason.getConc_reason_id(), reason.getConc_reason()))
                 .collect(Collectors.toList());
     }
     
+    @Cacheable("bloodGroups")
     public List<GenericDropdownDTO> getAllBloodGroups() {
         return bloodGroupRepository.findAll().stream()
                 .map(group -> new GenericDropdownDTO(group.getBlood_group_id(), group.getBlood_group_name()))
                 .collect(Collectors.toList());
     }
     
+    @Cacheable("paymentModes")
     public List<GenericDropdownDTO> getAllPaymentModes() {
         return paymentModeRepo.findAll().stream()
                 .map(mode -> new GenericDropdownDTO(mode.getPayment_mode_id(), mode.getPayment_type()))
                 .collect(Collectors.toList());
     }
     
+    @Cacheable(value = "orientationsByClass", key = "#classId")
     public List<OrientationDTO> getOrientationsByClassId(int classId) {
         return cmpsOrientationBatchFeeViewRepo.findOrientationsByClassId(classId);
     }
     
+    @Cacheable(value = "classesByCampus", key = "#campusId")
     public List<ClassDTO> getClassesByCampusId(int campusId) {
         return cmpsOrientationBatchFeeViewRepo.findClassesByCampusId(campusId);
     }
     
-    
+    @Cacheable("studentTypes")
     public List<GenericDropdownDTO> getAllStudentTypes() {
         return studentTypeRepo.findAll().stream()
                 .map(t -> new GenericDropdownDTO(t.getStud_type_id(), t.getStud_type())).collect(Collectors.toList());
     }
  
-    public List<GenericDropdownDTO> getAllStudentRelations() 
+    @Cacheable("studentRelations")
+    public List<GenericDropdownDTO> getAllStudentRelations()
     {         return studentRelationRepo.findAll().stream()                 .map(relation -> new GenericDropdownDTO(relation.getStudent_relation_id(), relation.getStudent_relation_type())) .collect(Collectors.toList()); }
     
     
-//    public List<GenericDropdownDTO> getOrientationsByCampus(int campusId) {
-//        return cmpsOrientationStreamViewRepo.findByCmpsId(campusId).stream()
-//            .map(view -> new GenericDropdownDTO(view.getOrientationId(), view.getOrientationName()))
-//            .distinct()
-//            .collect(Collectors.toList());
-//    }
-//    
-//    public List<GenericDropdownDTO> getStreamsByCampusAndOrientation(int campusId, int orientationId) {
-//        return cmpsOrientationStreamViewRepo.findByCmpsIdAndOrientationId(campusId, orientationId).stream()
-//            .map(view -> new GenericDropdownDTO(view.getStreamId(), view.getStreamName()))
-//            .distinct()
-//            .collect(Collectors.toList());
-//    }
-//
-//    public List<GenericDropdownDTO> getProgramsByCampusAndOrientation(int campusId, int orientationId) {
-//        return cmpsOrientationProgramViewRepo.findByCmpsIdAndOrientationId(campusId, orientationId).stream()
-//            .map(view -> new GenericDropdownDTO(view.getProgramId(), view.getProgramName()))
-//            .distinct()
-//            .collect(Collectors.toList());
-//    }
-public List<GenericDropdownDTO> getStudyTypesByCampusAndClass(int cmpsId, int classId) {
-    return cmpsOrientationBatchFeeViewRepo.findDistinctStudyTypesByCmpsIdAndClassId(cmpsId, classId);
-}
-
-public List<GenericDropdownDTO> getOrientationsByCampusClassAndStudyType(int cmpsId, int classId, int studyTypeId) {
-    return cmpsOrientationBatchFeeViewRepo.findDistinctOrientationsByCmpsIdAndClassIdAndStudyTypeId(cmpsId, classId, studyTypeId);
-}
-
-public List<GenericDropdownDTO> getOrientationBatchesByAllCriteria(int cmpsId, int classId, int studyTypeId, int orientationId) {
-    return cmpsOrientationBatchFeeViewRepo.findDistinctOrientationBatchesByCmpsIdAndClassIdAndStudyTypeIdAndOrientationId(cmpsId, classId, studyTypeId, orientationId);
-}
-
-public Optional<OrientationBatchDetailsDTO> getBatchDetails(int cmpsId, int classId, int studyTypeId, int orientationId, int orientationBatchId) {
-    return cmpsOrientationBatchFeeViewRepo.findBatchDetailsByAllCriteria(cmpsId, classId, studyTypeId, orientationId, orientationBatchId);
-}
+    @Cacheable(value = "studyTypesByCampusAndClass", key = "{#cmpsId, #classId}")
+    public List<GenericDropdownDTO> getStudyTypesByCampusAndClass(int cmpsId, int classId) {
+        return cmpsOrientationBatchFeeViewRepo.findDistinctStudyTypesByCmpsIdAndClassId(cmpsId, classId);
+    }
+ 
+    @Cacheable(value = "orientationsByCampusClassStudyType", key = "{#cmpsId, #classId, #studyTypeId}")
+    public List<GenericDropdownDTO> getOrientationsByCampusClassAndStudyType(int cmpsId, int classId, int studyTypeId) {
+        return cmpsOrientationBatchFeeViewRepo.findDistinctOrientationsByCmpsIdAndClassIdAndStudyTypeId(cmpsId, classId, studyTypeId);
+    }
+ 
+    @Cacheable(value = "orientationBatchesByCriteria", key = "{#cmpsId, #classId, #studyTypeId, #orientationId}")
+    public List<GenericDropdownDTO> getOrientationBatchesByAllCriteria(int cmpsId, int classId, int studyTypeId, int orientationId) {
+        return cmpsOrientationBatchFeeViewRepo.findDistinctOrientationBatchesByCmpsIdAndClassIdAndStudyTypeIdAndOrientationId(cmpsId, classId, studyTypeId, orientationId);
+    }
+ 
+    @Cacheable(value = "batchDetails", key = "{#cmpsId, #classId, #studyTypeId, #orientationId, #orientationBatchId}")
+    public Optional<OrientationBatchDetailsDTO> getBatchDetails(int cmpsId, int classId, int studyTypeId, int orientationId, int orientationBatchId) {
+        return cmpsOrientationBatchFeeViewRepo.findBatchDetailsByAllCriteria(cmpsId, classId, studyTypeId, orientationId, orientationBatchId);
+    }
+ 
+    @Cacheable(value = "orientationsByCampus", key = "#campusId")
     public List<OrientationResponseDTO> getOrientationsByCampus(int campusId) {
         List<CmpsOrientationBatchFeeView> orientations = cmpsOrientationBatchFeeViewRepo.findByCmpsId(campusId);
         return orientations.stream()
-                .filter(entity -> entity != null) // This line is the fix
+                .filter(entity -> entity != null)
                 .map(this::convertToOrientationResponseDto)
                 .collect(Collectors.toList());
     }
-
-    /**
-     * Helper method to convert the view entity to a response DTO.
-     */
+ 
     private OrientationResponseDTO convertToOrientationResponseDto(CmpsOrientationBatchFeeView entity) {
         return new OrientationResponseDTO(
             entity.getCmpsId(),
@@ -344,35 +322,32 @@ public Optional<OrientationBatchDetailsDTO> getBatchDetails(int cmpsId, int clas
         );
     }
     
- // ... inside the service class
-
+    @Cacheable(value = "districtsByState", key = "#stateId")
     public List<GenericDropdownDTO> getDistrictsByState(int stateId) {
         return districtRepo.findByStateStateId(stateId).stream()
                 .map(d -> new GenericDropdownDTO(d.getDistrictId(), d.getDistrictName()))
                 .collect(Collectors.toList());
     }
-
+ 
+    @Cacheable(value = "mandalsByDistrict", key = "#districtId")
     public List<GenericDropdownDTO> getMandalsByDistrict(int districtId) {
         return mandalRepo.findByDistrictDistrictId(districtId).stream()
                 .map(m -> new GenericDropdownDTO(m.getMandal_id(), m.getMandal_name()))
                 .collect(Collectors.toList());
     }
-
+    
+    @Cacheable(value = "citiesByDistrict", key = "#districtId")
     public List<GenericDropdownDTO> getCitiesByDistrict(int districtId) {
         return cityRepo.findByDistrictDistrictId(districtId).stream()
                 .map(c -> new GenericDropdownDTO(c.getCityId(), c.getCityName()))
                 .collect(Collectors.toList());
     }
-
-    /**
-     * Helper method to convert an entity to a DTO.
-     */
-
-
+ 
+    @Cacheable(value = "orientationFee", key = "{#campusId, #orientationId}")
     public CourseFeeDTO getOrientationFee(int campusId, int orientationId) {
         List<CmpsOrientation> orientations = cmpsOrientationRepo
                 .findByCmpsIdAndOrientationOrientationId(campusId, orientationId);
-
+ 
         if (orientations.isEmpty()) {
             throw new EntityNotFoundException(
                 "Fee not found for Campus ID: " + campusId + " and Orientation ID: " + orientationId
@@ -382,66 +357,42 @@ public Optional<OrientationBatchDetailsDTO> getBatchDetails(int cmpsId, int clas
         return new CourseFeeDTO(fee);
     }
     
+    @Cacheable("organizations")
     public List<GenericDropdownDTO> getAllOrganizations() {
         return organizationRepo.findAll().stream()
-                // CORRECTED: Call the camelCase getter methods
                 .map(org -> new GenericDropdownDTO(org.getOrgId(), org.getOrg_name()))
                 .collect(Collectors.toList());
     }
-
-    /**
-     * UPDATED LOGIC: Gets all details, extracts the unique banks, then maps to DTO.
-     */
+ 
+    @Cacheable(value = "banksByOrganization", key = "#orgId")
     public List<GenericDropdownDTO> getBanksByOrganization(int orgId) {
-        // Use the custom query method 'findDistinctBanksByOrganizationId'
         return orgBankDetailsRepo.findDistinctBanksByOrganizationId(orgId).stream()
                 .map(bank -> new GenericDropdownDTO(bank.getOrg_bank_id(), bank.getBank_name()))
                 .collect(Collectors.toList());
     }
     
+    @Cacheable(value = "bankDetails", key = "{#orgId, #bankId, #branchId}")
     public BankDetailsDTO getBankDetails(int orgId, int bankId, int branchId) {
         List<OrganizationBankDetails> detailsList = orgBankDetailsRepo.findDetailsByAllIds(orgId, bankId, branchId);
-
+ 
         if (detailsList.isEmpty()) {
             throw new EntityNotFoundException("Details not found for the given combination");
         }
         
-        // Get the first record from the list.
         OrganizationBankDetails details = detailsList.get(0);
         
         return new BankDetailsDTO(details.getIfsc_code());
     }
-
-    /**
-     * UPDATED LOGIC: Gets all details for the combo, extracts unique branches, maps to DTO.
-     */
+ 
+    @Cacheable(value = "branchesByOrgAndBank", key = "{#orgId, #bankId}")
     public List<GenericDropdownDTO> getBranchesByOrganizationAndBank(int orgId, int bankId) {
-        // Use the custom query method 'findDistinctBranchesByOrganizationAndBankId'
         return orgBankDetailsRepo.findDistinctBranchesByOrganizationAndBankId(orgId, bankId).stream()
                 .map(branch -> new GenericDropdownDTO(branch.getOrg_bank_branch_id(), branch.getBranch_name()))
                 .collect(Collectors.toList());
     }
-    
-//    public String getIfscCode(int orgId, int bankId, int branchId) {
-//        OrganizationBankDetails details = orgBankDetailsRepo
-//                .findDetailsByAllIds(orgId, bankId, branchId)
-//                .orElseThrow(() -> new EntityNotFoundException("IFSC code not found for the given combination"));
-//                
-//        return details.getIfsc_code();
-//    }
-//    public List<GenericDropdownDTO> getBranchesByOrganizationAndBank(int org_id, int org_bank_id) {
-//        return orgBankDetailsRepo.findByOrganization_Org_id(org_id, org_bank_id).stream()
-//                .map(details -> details.getOrgBankBranch()) // Get the OrgBankBranch object
-//                .distinct()
-//                .map(branch -> new GenericDropdownDTO(branch.getOrg_bank_branch_id(), branch.getBranch_name()))
-//                .collect(Collectors.toList());
-//    }
-    
-    // ... other standard dropdown and getById methods
-    
-    // endregion
-
-    @Transactional
+ 
+ 
+   @Transactional
     public StudentAcademicDetails createNewAdmission(StudentAdmissionDTO formData) {
         
         // --- 1. Save Academic Details ---
@@ -500,11 +451,15 @@ public Optional<OrientationBatchDetailsDTO> getBatchDetails(int cmpsId, int clas
         personalDetails.setStudentAcademicDetails(savedAcademicDetails);
         personalDetails.setStud_aadhaar_no(formData.getAadharCardNo());
         personalDetails.setDob(formData.getDob());
-        personalDetails.setReligion_id(formData.getReligionId());
-        personalDetails.setCaste_id(formData.getCasteId());
+        if (formData.getReligionId() != null) {
+            personalDetails.setReligion_id(formData.getReligionId());
+        }
+        if (formData.getCasteId() != null) {
+            personalDetails.setCaste_id(formData.getCasteId());
+        }
         personalDetails.setCreated_by(formData.getCreatedBy());
         if(formData.getBloodGroupId() != null){
-            bloodGroupRepo.findById(formData.getBloodGroupId()).ifPresent(personalDetails::setBloodGroup);
+        	bloodGroupRepository.findById(formData.getBloodGroupId()).ifPresent(personalDetails::setBloodGroup);
         }
         personalDetailsRepo.save(personalDetails);
         
@@ -584,15 +539,8 @@ public Optional<OrientationBatchDetailsDTO> getBatchDetails(int cmpsId, int clas
             savePaymentDetails(formData.getPaymentDetails(), savedAcademicDetails, null);
         }
         
-     // Correctly set the blood group ID
-        if (formData.getBloodGroupId() != null) {
-            // 1. Fetch the BloodGroup entity from the database using its repository
-            bloodGroupRepo.findById(formData.getBloodGroupId())
-                .ifPresent(bloodGroup -> {
-                    // 2. Pass the fetched entity to the setter method
-                    personalDetails.setBloodGroup(bloodGroup);
-                });
-        }
+     
+        
         return savedAcademicDetails;
     }
  
@@ -606,7 +554,10 @@ public Optional<OrientationBatchDetailsDTO> getBatchDetails(int cmpsId, int clas
         paymentDetails.setPaid_amount(paymentDetailsDTO.getApplicationFeeAmount() != null ? paymentDetailsDTO.getApplicationFeeAmount() : 0.0f);
         paymentDetails.setPre_print_receipt_no(paymentDetailsDTO.getPrePrintedReceiptNo());
         paymentDetails.setApplication_fee_pay_date(paymentDetailsDTO.getApplicationFeeDate());
-        paymentDetails.setConc_amount(paymentDetailsDTO.getConcessionAmount());
+        if (paymentDetailsDTO.getConcessionAmount() != null) {
+            paymentDetails.setConc_amount(paymentDetailsDTO.getConcessionAmount());
+        }
+ 
         paymentDetails.setAcedemicYear(academicDetails.getAcademicYear());
         paymentDetails.setStudentClass(academicDetails.getStudentClass());
         paymentDetails.setStatus(academicDetails.getStatus());
@@ -659,8 +610,12 @@ public Optional<OrientationBatchDetailsDTO> getBatchDetails(int cmpsId, int clas
     private void setCommonConcessionDetails(StudentConcessionType concession, StudentConcessionDetailsDTO dto, StudentAcademicDetails academicDetails) {
         concession.setStudAdmsId(academicDetails.getStud_adms_id());
         concession.setAcademicYear(academicDetails.getAcademicYear());
-        concession.setConc_issued_by(dto.getConcessionIssuedBy());
-        concession.setConc_authorised_by(dto.getConcessionAuthorisedBy());
+        if (dto.getConcessionIssuedBy() != null) {
+            concession.setConc_issued_by(dto.getConcessionIssuedBy());
+        }
+        if (dto.getConcessionAuthorisedBy() != null) {
+            concession.setConc_authorised_by(dto.getConcessionAuthorisedBy());
+        }
         concession.setComments(dto.getDescription());
         concession.setCreated_by(academicDetails.getCreated_by());
         concession.setCreated_Date(LocalDateTime.now());
@@ -673,7 +628,9 @@ public Optional<OrientationBatchDetailsDTO> getBatchDetails(int cmpsId, int clas
     private ProConcession saveProConcession(ProConcessionDTO dto, StudentAcademicDetails academicDetails, Integer createdBy) {
         ProConcession proConcession = new ProConcession();
         proConcession.setAdm_no(academicDetails.getStudAdmsNo());
-        proConcession.setConc_amount(dto.getConcessionAmount());
+        if (dto.getConcessionAmount() != null) {
+            proConcession.setConc_amount(dto.getConcessionAmount());
+        }
         proConcession.setReason(dto.getReason());
         proConcession.setCreated_by(createdBy);
  
@@ -686,43 +643,44 @@ public Optional<OrientationBatchDetailsDTO> getBatchDetails(int cmpsId, int clas
  
         return proConcessionRepo.save(proConcession);
     }
-    
-    @Transactional
-    public double applyCoupon(ApplyCouponDTO dto) {
-        // Step 1: Find and validate the application coupon
-        ApplicationCoupon applicationCoupon = applicationCouponRepository.findByCouponCode(dto.getCouponCode())
-                .orElseThrow(() -> new EntityNotFoundException("Coupon not found."));
-
-        // Step 2: Find the employee
-        Employee employee = employeeRepo.findById(dto.getEmployeeId())
-                .orElseThrow(() -> new EntityNotFoundException("Employee not found."));
-
-        // Step 3: Check if the employee has an UNUSED coupon assigned
-        // The repository method finds a coupon assigned to the employee that is not used.
-        // is_used = 1 indicates unused, based on the previous request.
-        // Corrected repository method call
-        EmployeeCoupon employeeCoupon = employeeCouponRepository
-                .findByEmployeeAndApplicationCouponAndIsUsed(employee, applicationCoupon, 1) // Assuming 1 is for unused
-                .orElseThrow(() -> new IllegalStateException("Coupon is already used by this employee or not assigned."));
-
-        // Step 4: Find the student to link the coupon
-        StudentAcademicDetails student = academicDetailsRepo.findById(dto.getStudentAdmissionId())
-                .orElseThrow(() -> new EntityNotFoundException("Student not found."));
-
-        // Step 5: Update the coupon as used (0 means used, as per your last request)
-        employeeCoupon.setIs_used(0);
-        employeeCouponRepository.save(employeeCoupon);
-
-        // Step 6: Save a record to the student coupon table
-        StudentCoupon studentCoupon = new StudentCoupon();
-        studentCoupon.setApplicationCoupon(applicationCoupon);
-        studentCoupon.setStudentAcademicDetails(student);
-        studentCoupon.setCreated_by(dto.getEmployeeId());
-        studentCoupon.setIs_active(1); 
-        studentCouponRepository.save(studentCoupon);
-
-        // Step 7: Return the coupon discount amount
-        return applicationCoupon.getCoupon_amount();
-    }
+//    
+//    @Transactional
+//    public double applyCoupon(ApplyCouponDTO dto) {
+//        // Step 1: Find and validate the application coupon
+//        ApplicationCoupon applicationCoupon = applicationCouponRepository.findByCouponCode(dto.getCouponCode())
+//                .orElseThrow(() -> new EntityNotFoundException("Coupon not found."));
+//
+//        // Step 2: Find the employee
+//        Employee employee = employeeRepo.findById(dto.getEmployeeId())
+//                .orElseThrow(() -> new EntityNotFoundException("Employee not found."));
+//
+//        // Step 3: Check if the employee has an UNUSED coupon assigned
+//        // The repository method finds a coupon assigned to the employee that is not used.
+//        // is_used = 1 indicates unused, based on the previous request.
+//        // Corrected repository method call
+//        EmployeeCoupon employeeCoupon = employeeCouponRepository
+//                .findByEmployeeAndApplicationCouponAndIsUsed(employee, applicationCoupon, 1) // Assuming 1 is for unused
+//                .orElseThrow(() -> new IllegalStateException("Coupon is already used by this employee or not assigned."));
+//
+//        // Step 4: Find the student to link the coupon
+//        StudentAcademicDetails student = academicDetailsRepo.findById(dto.getStudentAdmissionId())
+//                .orElseThrow(() -> new EntityNotFoundException("Student not found."));
+//
+//        // Step 5: Update the coupon as used (0 means used, as per your last request)
+//        employeeCoupon.setIs_used(0);
+//        employeeCouponRepository.save(employeeCoupon);
+//
+//        // Step 6: Save a record to the student coupon table
+//        StudentCoupon studentCoupon = new StudentCoupon();
+//        studentCoupon.setApplicationCoupon(applicationCoupon);
+//        studentCoupon.setStudentAcademicDetails(student);
+//        studentCoupon.setCreated_by(dto.getEmployeeId());
+//        studentCoupon.setIs_active(1);
+//        studentCouponRepository.save(studentCoupon);
+//
+//        // Step 7: Return the coupon discount amount
+//        return applicationCoupon.getCoupon_amount();
+//    }
     // endregion
 }
+ 

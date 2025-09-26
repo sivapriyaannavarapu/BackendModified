@@ -5,8 +5,6 @@ import com.application.dto.MetricCardDTO;
 import com.application.repository.AppStatusTrackRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
- 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -14,100 +12,88 @@ import java.util.Optional;
 @Service
 public class AppStatusTrackService {
  
-	@Autowired
-	
-	private AppStatusTrackRepository appStatusTrackRepository;
+    @Autowired
+    private AppStatusTrackRepository appStatusTrackRepository;
  
-	/**
-	 * Creates a list of dashboard metric cards with Year-over-Year (YoY) percentage change.
-	 * The current year is determined dynamically.
-	 * @return A list of MetricCardDTO objects for the dashboard.
-	 */
-	public List<MetricCardDTO> getDashboardCards() {
-        
-		// 1. Get the current and previous years dynamically
-		int currentYear = LocalDate.now().getYear();
-		int previousYear = currentYear - 1;
+    /**
+     * Gets the overall dashboard cards with year-over-year percentage change.
+     */
+    public List<MetricCardDTO> getDashboardCards() {
+        Optional<AppStatusTrackDTO> currentStatsOptional = appStatusTrackRepository.findLatestAggregatedStats();
+        AppStatusTrackDTO currentStats = currentStatsOptional.orElse(new AppStatusTrackDTO());
+        return transformToMetricCards(currentStats);
+    }
+    
+    /**
+     * Gets dashboard cards for a single employee with year-over-year percentage change.
+     */
+    public List<MetricCardDTO> getDashboardCardsByEmployee(Integer empId) {
+        Optional<AppStatusTrackDTO> statsOptional = appStatusTrackRepository.findAggregatedStatsByEmployee(empId);
+        AppStatusTrackDTO employeeStats = statsOptional.orElse(new AppStatusTrackDTO());
+        return transformToMetricCards(employeeStats);
+    }
  
-		// 2. Fetch aggregated data for both years
-		AppStatusTrackDTO currentYearStats = appStatusTrackRepository
-			.findAggregatedStatsByYear(currentYear)
-			.orElse(new AppStatusTrackDTO());
+    /**
+     * PRIVATE HELPER: Converts stats DTO into metric cards with year-over-year percentage change.
+     */
+    private List<MetricCardDTO> transformToMetricCards(AppStatusTrackDTO stats) {
+        List<MetricCardDTO> cards = new ArrayList<>();
  
-		AppStatusTrackDTO previousYearStats = appStatusTrackRepository
-			.findAggregatedStatsByYear(previousYear)
-			.orElse(new AppStatusTrackDTO());
+        // Total Applications
+        long totalThisYear = (stats.getTotalApplications() != null) ? stats.getTotalApplications() : 0L;
+        long totalLastYear = (stats.getTotalApplicationsLastYear() != null) ? stats.getTotalApplicationsLastYear() : 0L;
+        cards.add(new MetricCardDTO("Total Applications", (int) totalThisYear,
+                      calculatePercentageChange(totalThisYear, totalLastYear), "total_applications"));
  
-		// 3. Create metric cards with the calculated YoY percentage change
-		List<MetricCardDTO> cards = new ArrayList<>();
+        // Sold
+        long soldThisYear = (stats.getAppSold() != null) ? stats.getAppSold() : 0L;
+        long soldLastYear = (stats.getAppSoldLastYear() != null) ? stats.getAppSoldLastYear() : 0L;
+        cards.add(new MetricCardDTO("Sold", (int) soldThisYear,
+                      calculatePercentageChange(soldThisYear, soldLastYear), "sold"));
  
-		cards.add(new MetricCardDTO("Total Applications",
-				Math.toIntExact(currentYearStats.getTotalApplications() != null ? currentYearStats.getTotalApplications() : 0L),
-				calculatePercentageChange(currentYearStats.getTotalApplications(), previousYearStats.getTotalApplications()),
-				"total_applications"));
+        // Confirmed
+        long confirmedThisYear = (stats.getAppConfirmed() != null) ? stats.getAppConfirmed() : 0L;
+        long confirmedLastYear = (stats.getAppConfirmedLastYear() != null) ? stats.getAppConfirmedLastYear() : 0L;
+        cards.add(new MetricCardDTO("Confirmed", (int) confirmedThisYear,
+                      calculatePercentageChange(confirmedThisYear, confirmedLastYear), "confirmed"));
  
-		cards.add(new MetricCardDTO("Sold",
-				Math.toIntExact(currentYearStats.getAppSold() != null ? currentYearStats.getAppSold() : 0L),
-				calculatePercentageChange(currentYearStats.getAppSold(), previousYearStats.getAppSold()),
-				"sold"));
+        // Available
+        long availableThisYear = (stats.getAppAvailable() != null) ? stats.getAppAvailable() : 0L;
+        long availableLastYear = (stats.getAppAvailableLastYear() != null) ? stats.getAppAvailableLastYear() : 0L;
+        cards.add(new MetricCardDTO("Available", (int) availableThisYear,
+                      calculatePercentageChange(availableThisYear, availableLastYear), "available"));
  
-		cards.add(new MetricCardDTO("Confirmed",
-				Math.toIntExact(currentYearStats.getAppConfirmed() != null ? currentYearStats.getAppConfirmed() : 0L),
-				calculatePercentageChange(currentYearStats.getAppConfirmed(), previousYearStats.getAppConfirmed()),
-				"confirmed"));
+        // Issued
+        long issuedThisYear = (stats.getAppIssued() != null) ? stats.getAppIssued() : 0L;
+        long issuedLastYear = (stats.getAppIssuedLastYear() != null) ? stats.getAppIssuedLastYear() : 0L;
+        cards.add(new MetricCardDTO("Issued", (int) issuedThisYear,
+                      calculatePercentageChange(issuedThisYear, issuedLastYear), "issued"));
  
-		cards.add(new MetricCardDTO("Available",
-				Math.toIntExact(currentYearStats.getAppAvailable() != null ? currentYearStats.getAppAvailable() : 0L),
-				calculatePercentageChange(currentYearStats.getAppAvailable(), previousYearStats.getAppAvailable()),
-				"available"));
+        // Damaged
+        long damagedThisYear = (stats.getAppDamaged() != null) ? stats.getAppDamaged() : 0L;
+        long damagedLastYear = (stats.getAppDamagedLastYear() != null) ? stats.getAppDamagedLastYear() : 0L;
+        cards.add(new MetricCardDTO("Damaged", (int) damagedThisYear,
+                      calculatePercentageChange(damagedThisYear, damagedLastYear), "damaged"));
  
-		cards.add(new MetricCardDTO("Issued",
-				Math.toIntExact(currentYearStats.getAppIssued() != null ? currentYearStats.getAppIssued() : 0L),
-				calculatePercentageChange(currentYearStats.getAppIssued(), previousYearStats.getAppIssued()),
-				"issued"));
+        // Unavailable
+        long unavailableThisYear = (stats.getAppUnavailable() != null) ? stats.getAppUnavailable() : 0L;
+        long unavailableLastYear = (stats.getAppUnavailableLastYear() != null) ? stats.getAppUnavailableLastYear() : 0L;
+        cards.add(new MetricCardDTO("Unavailable", (int) unavailableThisYear,
+                      calculatePercentageChange(unavailableThisYear, unavailableLastYear), "unavailable"));
  
-		cards.add(new MetricCardDTO("Damaged",
-				Math.toIntExact(currentYearStats.getAppDamaged() != null ? currentYearStats.getAppDamaged() : 0L),
-				calculatePercentageChange(currentYearStats.getAppDamaged(), previousYearStats.getAppDamaged()),
-				"damaged"));
+        return cards;
+    }
  
-		cards.add(new MetricCardDTO("Unavailable",
-				Math.toIntExact(currentYearStats.getAppUnavailable() != null ? currentYearStats.getAppUnavailable() : 0L),
-				calculatePercentageChange(currentYearStats.getAppUnavailable(), previousYearStats.getAppUnavailable()),
-				"unavailable"));
- 
-		return cards;
-	}
- 
-	/**
-	 * Calculates the percentage change from a previous value to a current value.
-	 * Handles nulls and division-by-zero scenarios.
-	 * @param current The current year's value.
-	 * @param previous The previous year's value.
-	 * @return The rounded integer percentage change.
-	 */
-	private int calculatePercentageChange(Long current, Long previous) {
-		long currentVal = (current != null) ? current : 0L;
-		long previousVal = (previous != null) ? previous : 0L;
- 
-		if (previousVal == 0) {
-			// If previous value was 0, any increase is shown as 100% growth
-			return (currentVal > 0) ? 100 : 0;
-		}
- 
-		double percentageChange = ((double) (currentVal - previousVal) / previousVal) * 100.0;
-		return (int) Math.round(percentageChange);
-	}
- 
-	/**
-	 * Fetches aggregated application status stats filtered by issued type and employee.
-	 * @param issuedTypeId The ID of the issued type to filter by.
-	 * @param empId The ID of the employee to filter by.
-	 * @return An AppStatusTrackDTO with the aggregated statistics.
-	 */
-	public AppStatusTrackDTO getAppStatusByIssuedTypeAndEmployee(Integer issuedTypeId, Integer empId) {
-		Optional<AppStatusTrackDTO> statsOptional = appStatusTrackRepository
-				.findAggregatedStatsByIssuedTypeAndEmployee(issuedTypeId, empId);
-		return statsOptional.orElse(new AppStatusTrackDTO());
-	}
+    /**
+     * HELPER METHOD: Calculates percentage change between a current and previous value.
+     */
+    private int calculatePercentageChange(long currentValue, long previousValue) {
+        if (previousValue == 0) {
+            // If previous was 0, any increase is considered 100% growth.
+            return currentValue > 0 ? 100 : 0;
+        }
+        // Formula: ((current - previous) / previous) * 100
+        return (int) (((double) (currentValue - previousValue) / previousValue) * 100);
+    }
 }
+ 

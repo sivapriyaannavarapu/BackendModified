@@ -23,5 +23,7 @@ public interface StudentConcessionTypeRepository extends JpaRepository<StudentCo
 	
 	List<StudentConcessionType> findByStudAdmsId(int studAdmsId);
 	
+	Optional<StudentConcessionType> findByStudAdmsIdAndConcessionType_ConcTypeId(Integer studAdmsId, Integer concTypeId);
+	
 
 }
